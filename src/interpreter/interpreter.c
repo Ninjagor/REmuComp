@@ -5,6 +5,7 @@
 #include "vm/vm.h"
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include "memory/stack.h"
 
 void interpret_op(VM* vm, uint16_t words[4]) {
@@ -360,6 +361,42 @@ void interpret_op(VM* vm, uint16_t words[4]) {
 
       vm->cpu.pc += 8;
       break;
+    }
+
+    case 0x80: {
+        uint16_t reg_id = words[1];
+        uint16_t str_idx = words[2];
+        uint16_t dest_addr = words[3];
+
+        if ((uint32_t)dest_addr >= RAM_SIZE) {
+            printf("STRS Error: destination address out of RAM bounds\n");
+            vm->cpu.flags.program_interrupt = EFINISH;
+            return;
+        }
+
+        const char* str = get_string_from_vm(vm, str_idx);
+        if (!str) {
+            printf("STRS Error: invalid string index %u\n", str_idx);
+            vm->cpu.flags.program_interrupt = EFINISH;
+            return;
+        }
+
+        uint8_t* mem = vm->ram.memory;
+        size_t len = strlen(str);
+
+        if (dest_addr + len >= RAM_SIZE) {
+            printf("STRS Error: string write overflows RAM\n");
+            vm->cpu.flags.program_interrupt = EFINISH;
+            return;
+        }
+
+        for (size_t i = 0; i <= len; i++) {
+            mem[dest_addr + i] = (uint8_t)str[i];
+        }
+
+        vm->cpu.registers[reg_id].value = dest_addr;
+        vm->cpu.pc += 8;
+        break;
     }
 
     // CLSM addr, len

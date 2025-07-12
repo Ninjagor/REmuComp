@@ -2,6 +2,7 @@
 #define ASSEMBLER_H
 
 #include "utils/types.h"
+#include <stddef.h>
 
 typedef enum OpCode {
   // Arithmetic and Logic
@@ -64,6 +65,12 @@ typedef enum OpCode {
   ENABLESMOD = 0x90,
   DISABLESMOD = 0x91
 } OpCode;
+
+typedef struct {
+  char** strings;
+  size_t count;
+  size_t capacity;
+} StringTable;
 
 Result assemble(const char* filepath);
 
