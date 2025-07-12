@@ -32,4 +32,6 @@ const char* get_string_from_vm(VM* vm, uint16_t idx);
 
 Result run_program(VM* vm);
 
+void cleanup_vm(VM *vm);
+
 #endif

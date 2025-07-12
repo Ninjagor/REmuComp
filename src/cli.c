@@ -102,6 +102,9 @@ int cli_main(int argc, char* argv[]) {
         }
       }
 
+    
+      cleanup_vm(&vm);
+
       return 0;
 
     } else {

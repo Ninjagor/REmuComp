@@ -24,6 +24,11 @@ Result initialize_vm(VM *vm) {
   vm->stack.sp = vm->stack.start + STACK_SIZE;
   vm->stack.size = STACK_SIZE;
 
+
+  // vm->stack.start = STACK_START;        // offset, not absolute address
+  // vm->stack.sp = vm->stack.start + STACK_SIZE;
+  // vm->stack.size = STACK_SIZE;
+  //
   vm->vram = (uint8_t*)vm->ram.memory + VRAM_START;
   vm->spritesheet = (uint8_t*)vm->ram.memory + SPRITESHEET_START;
   vm->data_segments = (uint8_t*)vm->ram.memory + DATA_SEGMENT_START;
@@ -161,4 +166,18 @@ Result run_program(VM* vm) {
   return SUCCESS;
 }
 
+void cleanup_vm(VM *vm) {
+    if (vm->string_table) {
+        for (size_t i = 0; i < vm->string_count; i++) {
+            free(vm->string_table[i]);
+        }
+        free(vm->string_table);
+        vm->string_table = NULL;
+        vm->string_count = 0;
+    }
 
+    if (vm->ram.memory) {
+        free(vm->ram.memory);
+        vm->ram.memory = NULL;
+    }
+}
