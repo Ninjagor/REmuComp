@@ -27,7 +27,16 @@ static void draw_sprite_glow(int x, int y) {
     }
 }
 
+void init_display(void) {
+    SetTraceLogLevel(LOG_NONE);
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "REmu - VM");
+    SetTargetFPS(60);
+}
+
 void render(VM* vm) {
+    BeginDrawing();
+    preprocess_screen();
+
     for (int y = 0; y < 64; y++) {
         for (int x = 0; x < 96; x++) {
             size_t i = y * 96 + x;
@@ -35,24 +44,6 @@ void render(VM* vm) {
                 draw_sprite_glow(x * SCALE, y * SCALE);
         }
     }
-}
 
-int render_test(void) {
-    SetTraceLogLevel(LOG_NONE);
-    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "REmu - VM");
-    SetTargetFPS(60);
-
-    // NOTE: You must call initialize_vm elsewhere and pass the VM here.
-    // This example assumes VM* vm is externally managed.
-
-    while (!WindowShouldClose()) {
-        BeginDrawing();
-        preprocess_screen();
-
-        // Example call: render(vm);
-        EndDrawing();
-    }
-
-    CloseWindow();
-    return 0;
+    EndDrawing();
 }

@@ -83,6 +83,8 @@ int cli_main(int argc, char* argv[]) {
 
       load_program(&vm, filepath);
 
+      init_display();
+
       printf("\n============================\nSTDOUT\n\n");
 
       Result r = run_program(&vm);
@@ -105,8 +107,6 @@ int cli_main(int argc, char* argv[]) {
 
     
       cleanup_vm(&vm);
-
-      render_test();
 
       return 0;
 
