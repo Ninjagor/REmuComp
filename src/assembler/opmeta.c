@@ -37,6 +37,7 @@ int get_operand_count(OpCode op) {
     case LOAD:
     case STORE:
     case LOADR:
+    case CLSM:
     case STORER: return 2;
     case DRAW: return 4;
     default: return -1;

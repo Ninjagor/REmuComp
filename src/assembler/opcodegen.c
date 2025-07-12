@@ -43,6 +43,11 @@ OpCode get_opcode_from_str(const char* instr) {
     if (strcmp(instr, "ALLOWMOD") == 0) return ENABLESMOD;
     if (strcmp(instr, "DISABLEMOD") == 0) return DISABLESMOD;
 
+
+    if (strcmp(instr, "CLSM") == 0) return CLSM;
+
+    if (strcmp(instr, "STRS") == 0) return -2;
+
     // Unknown instruction
     return -1;
 }

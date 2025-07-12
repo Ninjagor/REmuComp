@@ -360,6 +360,25 @@ void interpret_op(VM* vm, uint16_t words[4]) {
       break;
     }
 
+    // CLSM addr, len
+    case 0x81: {
+      uint16_t addr = words[1];
+      uint16_t len  = words[2];
+
+      if (addr + len > RAM_SIZE) {
+        printf("CLSM Error: Out-of-bounds clear at 0x%04X (len %u)\n", addr, len);
+        vm->cpu.flags.program_interrupt = EFINISH;
+        return;
+      }
+
+      for (uint16_t i = 0; i < len; i++) {
+        ((uint16_t*)vm->ram.memory)[addr + i] = 0x0000;
+      }
+
+      vm->cpu.pc += 8;
+      break;
+    }
+
     case 0x90: {
       vm->cpu.flags.modification = ALLOWED;
       vm->cpu.pc += 8;

@@ -1,6 +1,5 @@
 _START
-  MOVI R0, 0xFFF5
-  STORE R0, 0x6C01
-  LOAD R1, 0x6C01
-  PRINT R1
+  CLSM 0x6C01 23
+  STRS R5, "Hello from stringies!\0", 0x6C01 ; Stores string to 0x6C01
+
   HALT

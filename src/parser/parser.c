@@ -61,11 +61,7 @@ char** parse_line(const char* line) {
     if (comment) *comment = '\0';
 
     trim(copy);
-    if (copy[0] == '\0') {
-        free(copy);
-        return NULL;
-    }
-    if (copy[0] == ';') {
+    if (copy[0] == '\0' || copy[0] == ';') {
         free(copy);
         return NULL;
     }
@@ -79,15 +75,66 @@ char** parse_line(const char* line) {
     }
 
     size_t idx = 0;
-    char* tok = strtok(copy, " \t");
-    while (tok && idx < 4) {
-        tokens[idx++] = strdup(tok);
-        tok = strtok(NULL, " \t");
+    char* ptr = copy;
+    while (*ptr && idx < 4) {
+        while (isspace((unsigned char)*ptr)) ptr++;
+        if (*ptr == '\0') break;
+
+        if (*ptr == '"') {
+            char* end = strchr(ptr + 1, '"');
+            if (!end) break;
+            size_t len = end - ptr + 1;
+            tokens[idx] = strndup(ptr, len);
+            ptr = end + 1;
+        } else {
+            char* start = ptr;
+            while (*ptr && !isspace((unsigned char)*ptr)) ptr++;
+            size_t len = ptr - start;
+            tokens[idx] = strndup(start, len);
+        }
+
+        idx++;
     }
 
     free(copy);
     return tokens;
 }
+
+// char** parse_line(const char* line) {
+//     char* copy = strdup(line);
+//     if (!copy) return NULL;
+//
+//     char* comment = strchr(copy, ';');
+//     if (comment) *comment = '\0';
+//
+//     trim(copy);
+//     if (copy[0] == '\0') {
+//         free(copy);
+//         return NULL;
+//     }
+//     if (copy[0] == ';') {
+//         free(copy);
+//         return NULL;
+//     }
+//
+//     remove_commas(copy);
+//
+//     char** tokens = calloc(4, sizeof(char*));
+//     if (!tokens) {
+//         free(copy);
+//         return NULL;
+//     }
+//
+//     size_t idx = 0;
+//     char* tok = strtok(copy, " \t");
+//     while (tok && idx < 4) {
+//         tokens[idx++] = strdup(tok);
+//         tok = strtok(NULL, " \t");
+//     }
+//
+//     free(copy);
+//     return tokens;
+// }
 
 void append_parsed_line(ParsedLines* plines, char** parsed_line) {
     if (plines->count == plines->capacity) {

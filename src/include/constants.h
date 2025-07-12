@@ -9,6 +9,7 @@
 // 16 KB program
 #define PROGRAM_START 0x0000
 #define PROGRAM_END 0x3FFF
+#define PROGRAM_MAX 0x3FFF
 
 // 6 KB VRAM
 #define VRAM_SIZE 0x1800  // 6 KB
