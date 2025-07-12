@@ -46,6 +46,7 @@ OpCode get_opcode_from_str(const char* instr) {
 
     if (strcmp(instr, "CLSM") == 0) return CLSM;
 
+    if (strcmp(instr, "DSTR") == 0) return -3;
     if (strcmp(instr, "STRS") == 0) return -2;
 
     // Unknown instruction

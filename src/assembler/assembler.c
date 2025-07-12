@@ -89,7 +89,51 @@ static Result second_pass(DynBuffer* opcodes, LabelMap* labels, ParsedLines* pli
 
     int opcode = get_opcode_from_str(toks[0]);
 
-    if (opcode == -2) { // STRS
+    if (opcode == -3) {
+      if (!toks[1] || !toks[2] || !toks[3]) {
+        printf("COMPILATION ERROR: DSTR requires register, string literal, and address\n");
+        return ERROR;
+      }
+      int regnum = -1;
+      if (toks[1][0] == 'R') regnum = atoi(toks[1] + 1);
+      if (regnum < 0) {
+        printf("COMPILATION ERROR: DTRS requires a valid register\n");
+        return ERROR;
+      }
+
+      const char* str_literal = toks[2];
+      size_t len = strlen(str_literal);
+      if (len < 2 || str_literal[0] != '"' || str_literal[len - 1] != '"') {
+        printf("COMPILATION ERROR: DTRS string literal must be quoted\n");
+        return ERROR;
+      }
+      char* string_content = strndup(str_literal + 1, len - 2);
+      if (!string_content) {
+        printf("COMPILATION ERROR: Memory allocation failed\n");
+        return ERROR;
+      }
+
+      uint16_t start_addr = (uint16_t)strtol(toks[3], NULL, 0);
+
+      for (size_t idx = 0; idx <= strlen(string_content); idx++) { // include null terminator
+        uint8_t byte = string_content[idx];
+
+        appendWord(opcodes, MOVI);
+        appendWord(opcodes, (uint16_t)regnum);
+        appendWord(opcodes, (uint16_t)byte);
+        appendWord(opcodes, 0x0000);
+
+        appendWord(opcodes, STORE);
+        appendWord(opcodes, (uint16_t)regnum);
+        appendWord(opcodes, start_addr + (uint16_t)idx);
+        appendWord(opcodes, 0x0000);
+      }
+
+      free(string_content);
+      continue;
+    }
+
+    if (opcode == -2) {
       if (!toks[1] || !toks[2]) {
         printf("COMPILATION ERROR: STRS requires register and string literal\n");
         return ERROR;

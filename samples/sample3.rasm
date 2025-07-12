@@ -1,4 +1,10 @@
 _START
-    STRS R1, "hello there my friend!!", 0xE001
+    STRS R1, "This is a static string. (low memory usage)", 0xE001
     PRINT R1, 1
+
+
+    DSTR R2, "This is a dynamic string! (high memory usage)", 0xE030
+    MOVI R3, 0xE030
+    PRINT R3, 1
+
     HALT
