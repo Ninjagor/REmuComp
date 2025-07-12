@@ -304,6 +304,7 @@ Result assemble(const char* filepath) {
       }
       printf("0x%04X ", opcodes.data[i]);
   }
+  printf("\n\nCompiled: %zu Bytes\n", opcodes.size);
   printf("\n");
 
   fwrite(opcodes.data, sizeof(uint16_t), opcodes.size, f);

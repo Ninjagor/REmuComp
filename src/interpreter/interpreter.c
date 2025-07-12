@@ -344,6 +344,7 @@ void interpret_op(VM* vm, uint16_t words[4]) {
       if (addr <= PROGRAM_START+PROGRAM_MAX) {
         if (vm->cpu.flags.modification == NOTALLOWED) {
           printf("\nMEMSET Error: Attempted to modify program source\n");
+          printf("\nMAX is: %04X, you set %04X\n", PROGRAM_START+PROGRAM_MAX, addr);
           printf("Set ALLOWMOD to enable this unsafe behavior\n");
           vm->cpu.flags.program_interrupt = EFINISH;
           return;
@@ -371,8 +372,9 @@ void interpret_op(VM* vm, uint16_t words[4]) {
         return;
       }
 
+      uint8_t* mem = (uint8_t*)vm->ram.memory;
       for (uint16_t i = 0; i < len; i++) {
-        ((uint16_t*)vm->ram.memory)[addr + i] = 0x0000;
+        mem[addr + i] = 0x00;
       }
 
       vm->cpu.pc += 8;
@@ -394,13 +396,25 @@ void interpret_op(VM* vm, uint16_t words[4]) {
     // PRINT
     case 0x60: {
       uint16_t reg = words[1];
+      uint16_t flag = words[2];
+
       uint16_t value = vm->cpu.registers[reg].value;
 
-      printf("%04X\n", value);
+      if (flag == 0x0000) {
+        printf("%04X\n", value);
+      } else {
+        uint16_t addr = value;
+        uint8_t* mem = vm->ram.memory;
+        while (mem[addr] != '\0') {
+          putchar(mem[addr]);
+          addr++;
+        }
+        putchar('\n');
+      }
 
       vm->cpu.pc += 8;
       break;
-    };
+    }
 
     // HALT
     case 0x23: {

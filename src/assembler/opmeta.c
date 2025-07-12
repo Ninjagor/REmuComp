@@ -17,8 +17,8 @@ int get_operand_count(OpCode op) {
     case ROL:
     case ROR: return 3;
     case PUSH:
-    case POP:
-    case PRINT: return 1;
+    case POP: return 1;
+    case PRINT: return 2;
     case PUTC: return 1;
     case JMP:
     case JE:

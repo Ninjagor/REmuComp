@@ -1,5 +1,13 @@
 _START
-  CLSM 0x6C01 23
-  STRS R5, "Hello from stringies!\0", 0x6C01 ; Stores string to 0x6C01
+  CLSM 0xE001 23
+  STRS R5, "Hello from stringies!\0", 0xE001
+  MOVI R5, 0xE001
+
+  ; CLSM 0xE001 200
+
+  PRINT R5, 0x0001
+
+  MOVI R2, #0xE006
+  ADD R1, R5, R2
 
   HALT
