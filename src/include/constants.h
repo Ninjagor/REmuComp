@@ -2,27 +2,33 @@
 
 /** MEMORY RELATED STUFF **/
 
-#define RAM_SIZE 16384
+#define RAM_SIZE 32768
 
-// max 8 KB program
+#define RAM_SIZE 32768  // 32 KB
+
+// 16 KB program
 #define PROGRAM_START 0x0000
-#define PROGRAM_MAX 0x1FFF
+#define PROGRAM_END 0x3FFF
 
-// 4 KB vram, 64 x 64 output
-#define VRAM_SIZE 4096
-#define VRAM_START 0x2000
+// 6 KB VRAM
+#define VRAM_SIZE 0x1800  // 6 KB
+#define VRAM_START (PROGRAM_END + 1)  // 0x4000
+#define VRAM_END (VRAM_START + VRAM_SIZE - 1)  // 0x57FF
 
 // 1 KB stack
-#define STACK_SIZE 1024
-#define STACK_START (VRAM_START + VRAM_SIZE)
+#define STACK_SIZE 0x400  // 1 KB
+#define STACK_START (VRAM_END + 1)  // 0x5800
+#define STACK_END (STACK_START + STACK_SIZE - 1)  // 0x5BFF
 
-// 2 KB Spritesheet
-#define SPRITESHEET_SIZE 2048
-#define SPRITESHEET_START (STACK_START + STACK_SIZE)
+// 4 KB Spritesheet
+#define SPRITESHEET_SIZE 0x1000  // 4 KB
+#define SPRITESHEET_START (STACK_END + 1)  // 0x5C00
+#define SPRITESHEET_END (SPRITESHEET_START + SPRITESHEET_SIZE - 1)  // 0x6BFF
 
-// 0.5 KB data/variable segment
-#define DATA_SEGMENT_SIZE 512
-#define DATA_SEGMENT_START (SPRITESHEET_START + SPRITESHEET_SIZE)
+// 2 KB data segment
+#define DATA_SEGMENT_SIZE 0x800  // 2 KB
+#define DATA_SEGMENT_START (SPRITESHEET_END + 1)  // 0x6C00
+#define DATA_SEGMENT_END (DATA_SEGMENT_START + DATA_SEGMENT_SIZE - 1)  // 0x73FF
 
 // 0.5 KB Free - TODO
 
