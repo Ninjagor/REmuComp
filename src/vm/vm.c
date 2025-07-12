@@ -49,21 +49,20 @@ Result initialize_vm(VM *vm) {
 
   vm->cpu.flags.program_interrupt = RUNNING;
 
-  // memcpy(vm->vram, &spritesheet[10 * SPRITESHEET_SPRITE_SIZE], SPRITESHEET_SPRITE_SIZE);
-int start_x = (96 - 8) / 2;  // center horizontally
-int start_y = (64 - 8) / 2;  // center vertically
-const uint8_t* sprite = &spritesheet[10 * SPRITESHEET_SPRITE_SIZE];
-
-for (int row = 0; row < 8; row++) {
-    uint8_t bits = sprite[row];
-    for (int col = 0; col < 8; col++) {
-        if (bits & (1 << (7 - col))) {
-            int x = start_x + col;
-            int y = start_y + row;
-            vm->vram[y * 96 + x] = 1;
-        }
-    }
-}
+// int start_x = (96 - 8) / 2;
+// int start_y = (64 - 8) / 2;
+// const uint8_t* sprite = &spritesheet[10 * SPRITESHEET_SPRITE_SIZE];
+//
+// for (int row = 0; row < 8; row++) {
+//     uint8_t bits = sprite[row];
+//     for (int col = 0; col < 8; col++) {
+//         if (bits & (1 << (7 - col))) {
+//             int x = start_x + col;
+//             int y = start_y + row;
+//             vm->vram[y * 96 + x] = 1;
+//         }
+//     }
+// }
   printf("\nLoading VRAM with a\n");
 
   return SUCCESS;

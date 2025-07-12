@@ -1,6 +1,7 @@
 #include "interpreter/interpreter.h"
 #include "constants.h"
 #include "cpu/cpu.h"
+#include "graphics/spritesheet.h"
 #include "utils/types.h"
 #include "vm/vm.h"
 #include <stdint.h>
@@ -370,6 +371,70 @@ void interpret_op(VM* vm, uint16_t words[4]) {
       vm->cpu.pc += 8;
       break;
     }
+
+    case 0x52: {
+        uint16_t letter_id = vm->cpu.registers[words[1]].value;
+        uint16_t x = vm->cpu.registers[words[2]].value;
+        uint16_t y = vm->cpu.registers[words[3]].value;
+
+        if (x >= SCREEN_WIDTH - SPRITE_SIZE) x = SCREEN_WIDTH - SPRITE_SIZE;
+        if (y >= SCREEN_HEIGHT - SPRITE_SIZE) y = SCREEN_HEIGHT - SPRITE_SIZE;
+
+        const uint8_t* sprite = &vm->spritesheet[letter_id * SPRITESHEET_SPRITE_SIZE];
+
+        for (int row = 0; row < SPRITE_SIZE; row++) {
+            uint8_t bits = sprite[row];
+            for (int col = 0; col < SPRITE_SIZE; col++) {
+                if (bits & (1 << (7 - col))) {
+                    vm->vram[(y + row) * SCREEN_WIDTH + (x + col)] = 1;
+                }
+            }
+        }
+
+        vm->cpu.pc += 8;
+        break;
+    }
+
+    case 0x53: {
+        uint16_t dst = words[1];
+        uint16_t addr_reg = words[2];
+
+        uint16_t addr = vm->cpu.registers[addr_reg].value;
+        if (addr >= RAM_SIZE-1) {
+            printf("LOADB Error: out-of-bounds access\n");
+            vm->cpu.flags.program_interrupt = EFINISH;
+            return;
+        }
+
+        vm->cpu.registers[dst].value = ((uint8_t*)vm->ram.memory)[addr];
+        vm->cpu.pc += 8;
+        break;
+    }
+
+  case 0x54: {
+      uint16_t sprite_id = vm->cpu.registers[words[1]].value;
+      uint16_t x = vm->cpu.registers[words[2]].value;
+      uint16_t y = vm->cpu.registers[words[3]].value;
+
+      // Clamp coordinates to avoid VRAM overflow
+      if (x >= SCREEN_WIDTH - SPRITE_SIZE) x = SCREEN_WIDTH - SPRITE_SIZE;
+      if (y >= SCREEN_HEIGHT - SPRITE_SIZE) y = SCREEN_HEIGHT - SPRITE_SIZE;
+
+      // Pointer to sprite data in spritesheet
+      const uint8_t* sprite = &vm->spritesheet[sprite_id * SPRITESHEET_SPRITE_SIZE];
+
+      for (int row = 0; row < SPRITE_SIZE; row++) {
+          uint8_t bits = sprite[row];
+          for (int col = 0; col < SPRITE_SIZE; col++) {
+              if (bits & (1 << (7 - col))) {
+                  vm->vram[(y + row) * SCREEN_WIDTH + (x + col)] = 1;
+              }
+          }
+      }
+
+      vm->cpu.pc += 8;
+      break;
+  }
 
     case 0x80: {
         uint16_t reg_id = words[1];

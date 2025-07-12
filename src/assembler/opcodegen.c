@@ -34,10 +34,15 @@ OpCode get_opcode_from_str(const char* instr) {
     if (strcmp(instr, "LOAD") == 0) return LOAD;
     if (strcmp(instr, "STORE") == 0) return STORE;
     if (strcmp(instr, "LOADR") == 0) return LOADR;
-    if (strcmp(instr, "STORER") == 0) return STORER;
+    if (strcmp(instr, "LOADB") == 0) return LOADB;
     if (strcmp(instr, "PRINT") == 0) return PRINT;
-    if (strcmp(instr, "PUTC") == 0) return PUTC;
-    if (strcmp(instr, "DRAW") == 0) return DRAW;
+    // if (strcmp(instr, "PUTC") == 0) return PUTC;
+
+    if (strcmp(instr, "ENABLEDRAW") == 0) return ENABLEDRAW;
+    if (strcmp(instr, "DISABLEDRAW") == 0) return DISABLEDRAW;
+
+    if (strcmp(instr, "STRB") == 0) return STRB;
+
     if (strcmp(instr, "CLS") == 0) return CLS;
 
     if (strcmp(instr, "ALLOWMOD") == 0) return ENABLESMOD;

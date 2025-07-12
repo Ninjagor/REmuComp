@@ -38,8 +38,10 @@ int get_operand_count(OpCode op) {
     case STORE:
     case LOADR:
     case CLSM:
-    case STORER: return 2;
-    case DRAW: return 4;
+    case LOADB: return 2;
+    case ENABLEDRAW:
+    case DISABLEDRAW: return 0;
+    case STRB: return 3;
     default: return -1;
   }
 }

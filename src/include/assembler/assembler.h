@@ -48,15 +48,20 @@ typedef enum OpCode {
   LOAD      = 0x50,
   STORE     = 0x51,
   LOADR     = 0x52,
-  STORER    = 0x53,
+  LOADB     = 0x53,
+
+  // Add sprite to VRAM at x, y
+  STRB  = 0x54,
 
   // Text
   PRINT     = 0x60,
   PUTC      = 0x61,
 
   // Graphics
-  DRAW      = 0x70,
+  ENABLEDRAW      = 0x70,
   CLS       = 0x71,
+  DISABLEDRAW      = 0x72,
+  
 
   // MEMORY
   CLSM = 0x81,

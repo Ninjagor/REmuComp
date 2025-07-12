@@ -216,7 +216,7 @@ static Result second_pass(DynBuffer* opcodes, LabelMap* labels, ParsedLines* pli
       continue;
     }
 
-    if (opcode == STORE || opcode == LOAD || opcode == LOADR || opcode == STORER) {
+    if (opcode == STORE || opcode == LOAD || opcode == LOADR) {
       int regnum = (toks[1][0] == 'R') ? atoi(toks[1] + 1) : -1;
       int addr = (int)strtol(toks[2], NULL, 0);
       if (regnum < 0) {
