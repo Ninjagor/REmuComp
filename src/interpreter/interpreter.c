@@ -245,7 +245,7 @@ void interpret_op(VM* vm, uint16_t words[4]) {
     case 0x21: {
       uint16_t jmp_location = words[1];
 
-      push(vm->ram.memory, &vm->stack, vm->cpu.pc + 8);
+      push(vm->ram.memory, &vm->stack, vm->cpu.pc + 9);
       vm->cpu.pc = jmp_location;
       break;
     };
@@ -253,6 +253,7 @@ void interpret_op(VM* vm, uint16_t words[4]) {
     // RET - Jump back to where the subroutine was called from
     case 0x22: {
       uint32_t location = pop(vm->ram.memory, &vm->stack);
+      printf("\nLocation to jump to: %40X\n", location);
 
       vm->cpu.pc = location;
 
@@ -344,6 +345,7 @@ void interpret_op(VM* vm, uint16_t words[4]) {
       if (addr <= PROGRAM_START+PROGRAM_MAX) {
         if (vm->cpu.flags.modification == NOTALLOWED) {
           printf("\nMEMSET Error: Attempted to modify program source\n");
+          printf("\nMAX is: %04X, you set %04X\n", PROGRAM_START+PROGRAM_MAX, addr);
           printf("Set ALLOWMOD to enable this unsafe behavior\n");
           vm->cpu.flags.program_interrupt = EFINISH;
           return;
@@ -355,6 +357,26 @@ void interpret_op(VM* vm, uint16_t words[4]) {
 
       mem[addr] = value & 0xFF;
       mem[addr + 1] = (value >> 8) & 0xFF;
+
+      vm->cpu.pc += 8;
+      break;
+    }
+
+    // CLSM addr, len
+    case 0x81: {
+      uint16_t addr = words[1];
+      uint16_t len  = words[2];
+
+      if (addr + len > RAM_SIZE) {
+        printf("CLSM Error: Out-of-bounds clear at 0x%04X (len %u)\n", addr, len);
+        vm->cpu.flags.program_interrupt = EFINISH;
+        return;
+      }
+
+      uint8_t* mem = (uint8_t*)vm->ram.memory;
+      for (uint16_t i = 0; i < len; i++) {
+        mem[addr + i] = 0x00;
+      }
 
       vm->cpu.pc += 8;
       break;
@@ -375,13 +397,25 @@ void interpret_op(VM* vm, uint16_t words[4]) {
     // PRINT
     case 0x60: {
       uint16_t reg = words[1];
+      uint16_t flag = words[2];
+
       uint16_t value = vm->cpu.registers[reg].value;
 
-      printf("%04X\n", value);
+      if (flag == 0x0000) {
+        printf("%04X\n", value);
+      } else {
+        uint16_t addr = value;
+        uint8_t* mem = vm->ram.memory;
+        while (mem[addr] != '\0') {
+          putchar(mem[addr]);
+          addr++;
+        }
+        putchar('\n');
+      }
 
       vm->cpu.pc += 8;
       break;
-    };
+    }
 
     // HALT
     case 0x23: {

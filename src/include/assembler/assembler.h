@@ -57,6 +57,9 @@ typedef enum OpCode {
   DRAW      = 0x70,
   CLS       = 0x71,
 
+  // MEMORY
+  CLSM = 0x81,
+
   // FLAGS
   ENABLESMOD = 0x90,
   DISABLESMOD = 0x91
