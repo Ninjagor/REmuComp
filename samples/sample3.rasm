@@ -1,10 +1,8 @@
 _START
-    STRS R1, "This is a static string. (low memory usage)", 0xE001
-    PRINT R1, 1
-
-
-    DSTR R2, "This is a dynamic string! (high memory usage)", 0xE030
-    MOVI R3, 0xE030
-    PRINT R3, 1
-
+    CALL _SUBROUTINE
     HALT
+
+_SUBROUTINE
+  STRS R0, "Hello from subroutine!", 0xE001
+  PRINT R0, 1
+  RET

@@ -4,8 +4,7 @@
 #include "memory/mem.h"
 #include <stdint.h>
 
-uint8_t pop(Memory* memory, Stack* stack);
-
-Result push(Memory* memory, Stack* stack, uint8_t value);
+Result push(Memory* memory, Stack* stack, uint16_t value);
+Result pop(Memory* memory, Stack* stack, uint16_t* value);
 
 #endif

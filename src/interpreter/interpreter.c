@@ -242,23 +242,31 @@ void interpret_op(VM* vm, uint16_t words[4]) {
       break;
     };
 
-    // CALL - Jump to a subroutine after pushing current PC to stack
+    // CALL
     case 0x21: {
-      uint16_t jmp_location = words[1];
+        uint16_t jmp_location = words[1];
 
-      push(vm->ram.memory, &vm->stack, vm->cpu.pc + 9);
-      vm->cpu.pc = jmp_location;
-      break;
-    };
+        if (push(vm->ram.memory, &vm->stack, vm->cpu.pc + 8) != SUCCESS) {
+            printf("Stack overflow on CALL\n");
+            vm->cpu.flags.program_interrupt = EFINISH;
+            return;
+        }
 
-    // RET - Jump back to where the subroutine was called from
+        vm->cpu.pc = jmp_location;
+        break;
+    }
+
+    // RET
     case 0x22: {
-      uint32_t location = pop(vm->ram.memory, &vm->stack);
-      printf("\nLocation to jump to: %40X\n", location);
+        uint16_t return_addr;
+        if (pop(vm->ram.memory, &vm->stack, &return_addr) != SUCCESS) {
+            printf("Stack underflow on RET\n");
+            vm->cpu.flags.program_interrupt = EFINISH;
+            return;
+        }
 
-      vm->cpu.pc = location;
-
-      break;
+        vm->cpu.pc = return_addr;
+        break;
     }
 
     // SHL - Logical shift left
