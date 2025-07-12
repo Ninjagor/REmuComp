@@ -1,0 +1,77 @@
+_START
+  ; ---- Arithmetic and Logic ----
+  ; SUPAFUNAIDWNAWD
+  MOVI R0, R1
+  MOVI R1, 3
+  ADD R2, R0, R1         ; R2 = 5 + 3 = 8
+  SUB R3, R0, R1         ; R3 = 5 - 3 = 2
+  AND R4, R0, R1         ; R4 = 5 & 3 = 1
+  OR  R5, R0, R1         ; R5 = 5 | 3 = 7
+  XOR R6, R0, R1         ; R6 = 5 ^ 3 = 6
+  NOT R7, R0             ; R7 = ~5
+
+  ; ---- Bit Shifts / Rotates ----
+  MOVI R7, 1
+  SHL R0, R1, R7         ; R0 = R1 << R7
+  SHR R1, R0, R7         ; R1 = R0 >> R7
+  SAR R2, R1, R7         ; R2 = R1 >> R7 (arith)
+  ROL R3, R1, R7         ; R3 = rotate left
+  ROR R4, R1, R7         ; R4 = rotate right
+
+  ; ---- Stack and Call ----
+  PUSH R0
+  PUSH R1
+  CALL _FUNC
+  POP R1
+  POP R0
+
+  ; ---- Compare and Branch ----
+  CMP R0, R1
+  JE  _EQUAL
+  JNE _NOTEQUAL
+  JL  _LESS
+  JG  _GREATER
+  JLE _LESSEQ
+  JGE _GREATEQ
+
+_EQUAL
+  JMP _CONTINUE
+_NOTEQUAL
+  JMP _CONTINUE
+_LESS
+  JMP _CONTINUE
+_GREATER
+  JMP _CONTINUE
+_LESSEQ
+  JMP _CONTINUE
+_GREATEQ
+  JMP _CONTINUE
+
+_CONTINUE
+  ; ---- Memory Access ----
+  MOVI R5, 0x1000
+  MOVI R6, 42
+  STORE R5, R6           ; MEM[0x1000] = 42
+  MOVI R7, 0             ; offset
+  LOAD R4, R5        ; R4 = MEM[0x1000]
+
+  ; ---- Text I/O ----
+  MOVI R0, 'A'
+  PRINT R0
+
+  ; ---- Draw Example ----
+  MOVI R0, 10            ; x
+  MOVI R1, 5             ; y
+  MOVI R2, 0x3800        ; sprite addr
+  MOVI R3, 8             ; height
+  ; DRAW R0, R1, R2, R3
+
+  ; ---- Halt/Loop ----
+  JMP _START
+
+; ---- Subroutine ----
+_FUNC
+  MOVI R7, 1
+  ADD R0, R0, R7
+  RET
+

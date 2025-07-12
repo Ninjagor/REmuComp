@@ -1,0 +1,4 @@
+_START
+  MOVI R0, R1
+_START
+  PRINT R0
