@@ -8,4 +8,6 @@
 
 extern const uint8_t spritesheet[SPRITESHEET_SPRITE_COUNT * SPRITESHEET_SPRITE_SIZE];
 
+void load_spritesheet_to_memory(uint8_t *memory);
+
 #endif

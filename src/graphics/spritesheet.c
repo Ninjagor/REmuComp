@@ -1,4 +1,7 @@
 #include "graphics/spritesheet.h"
+#include "constants.h"
+#include <stdio.h>
+#include <string.h>
 
 const uint8_t spritesheet[SPRITESHEET_SPRITE_COUNT * SPRITESHEET_SPRITE_SIZE] = {
     // '0'
@@ -75,3 +78,8 @@ const uint8_t spritesheet[SPRITESHEET_SPRITE_COUNT * SPRITESHEET_SPRITE_SIZE] = 
     // 'Z'
     0x7E, 0x06, 0x0C, 0x18, 0x30, 0x60, 0x7E, 0x00
 };
+
+void load_spritesheet_to_memory(uint8_t *memory) {
+    memcpy(&memory[SPRITESHEET_START], spritesheet, SPRITESHEET_SPRITE_COUNT * SPRITESHEET_SPRITE_SIZE);
+    printf("Copied over spritesheets");
+}

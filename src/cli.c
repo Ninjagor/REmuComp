@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "graphics/render.h"
 
 static void print_usage() {
     printf("Usage:\n");
@@ -104,6 +105,8 @@ int cli_main(int argc, char* argv[]) {
 
     
       cleanup_vm(&vm);
+
+      render_test();
 
       return 0;
 

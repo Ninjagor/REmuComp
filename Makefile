@@ -2,6 +2,13 @@ CC := clang
 CFLAGS := -Wall -Wextra -I. -Isrc/include -g
 ASAN_FLAGS := -fsanitize=address -fno-omit-frame-pointer
 
+RAYLIB_INC := /opt/homebrew/include
+RAYLIB_LIB := /opt/homebrew/lib
+
+CFLAGS += -I$(RAYLIB_INC)
+
+LDFLAGS := -L$(RAYLIB_LIB) -lraylib -framework OpenGL -framework Cocoa -framework IOKit -framework CoreAudio -framework CoreVideo -lm
+
 ifeq ($(ASAN),1)
   CFLAGS += $(ASAN_FLAGS)
 endif
@@ -15,7 +22,7 @@ EXEC := bin/main
 all: $(EXEC)
 
 $(EXEC): $(OBJ) | bin
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 bin:
 	mkdir -p bin

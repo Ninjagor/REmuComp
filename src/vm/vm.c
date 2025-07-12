@@ -1,6 +1,7 @@
 #include "vm/vm.h"
 #include "constants.h"
 #include "cpu/cpu.h"
+#include "graphics/spritesheet.h"
 #include "interpreter/interpreter.h"
 #include "memory/mem.h"
 #include "parser/parser.h"
@@ -23,6 +24,8 @@ Result initialize_vm(VM *vm) {
   vm->stack.start = (uintptr_t)vm->ram.memory + STACK_START;
   vm->stack.sp = vm->stack.start + STACK_SIZE;
   vm->stack.size = STACK_SIZE;
+
+  load_spritesheet_to_memory(vm->ram.memory);
 
 
   // vm->stack.start = STACK_START;        // offset, not absolute address
