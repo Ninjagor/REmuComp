@@ -245,7 +245,7 @@ void interpret_op(VM* vm, uint16_t words[4]) {
     case 0x21: {
       uint16_t jmp_location = words[1];
 
-      push(vm->ram.memory, &vm->stack, vm->cpu.pc + 8);
+      push(vm->ram.memory, &vm->stack, vm->cpu.pc + 9);
       vm->cpu.pc = jmp_location;
       break;
     };
@@ -253,6 +253,7 @@ void interpret_op(VM* vm, uint16_t words[4]) {
     // RET - Jump back to where the subroutine was called from
     case 0x22: {
       uint32_t location = pop(vm->ram.memory, &vm->stack);
+      printf("\nLocation to jump to: %40X\n", location);
 
       vm->cpu.pc = location;
 
