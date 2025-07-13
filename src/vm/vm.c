@@ -82,7 +82,7 @@ void load_string_table(VM* vm, FILE* f) {
         int i = 0;
         uint16_t ch;
 
-        while (fread(&ch, sizeof(uint16_t), 1, f) == 1) {
+        while (fread(&ch, sizeof(uint8_t), 1, f) == 1) {
             if (ch == 0) break;
             if (i < MAX_STRING_LENGTH - 1) {
                 buffer[i++] = (char)(ch & 0xFF);

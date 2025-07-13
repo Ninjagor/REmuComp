@@ -1,60 +1,65 @@
+; STRING hold register: R15
+; LOOP LEN LIMIT REGISTER: R14
+; LOOP ITERATOR REGISTER: R13
+; LOOP INCREMENT REGISTER: R12
+; CURRENT CHAR LOCATION REGISTER: R10
+; START X REGISTER: R9
+; Y REGISTER: R8
+; CURRENT CHAR HEX REGISTER: R7
+
 _START
-    ; Store "hello" string into RAM at some location
-    STRS R7, "hello", 0xE001
-    PRINT R7, 1       ; print address for debug
+  CALL _INIT
+  JMP _LOOP
+  HALT
 
-    ; Set up string pointer in R0 (start address of string in RAM)
-    MOVI R0, R7
+_INIT
+    STRS R15, "HELLO", #0xE000
 
-    ; Starting x, y position for drawing text
-    MOVI R1, 10       ; x
-    MOVI R2, 15       ; y
+    PRINT R15, 1
 
-_LOOP_CHAR
-    ; Load byte from RAM at [R0]
-    LOADB R3, R0      ; load current char
+    MOVI R14, #0x0005
+    MOVI R13, #0x0000
+    MOVI R12, #0x0001
 
-    ; Debug print char code
-    PRINT R3, 0
+    MOVI R10, #0x0000
+    MOVI R9, #0x0001
+    MOVI R8, #0x0010
+    MOVI R7, #0x0000
 
-    ; Check if null terminator
-    CMP R3, 0
-    JE _END_LOOP
+    MOVI R4, 0x0008
 
-    ; Check if char is between 'a' (97) and 'z' (122)
-    MOVI R4, 97
-    CMP R3, R4
-    JL _SKIP_CHAR
+    MOVI R3, #0xE000
 
-    MOVI R4, 122
-    CMP R3, R4
-    JG _SKIP_CHAR
+    MOVI R0, #0x0000
+    MOVI R1, #0x0001
 
-    ; Calculate sprite index: char - 87 ('a'->10)
-    MOVI R4, 87
-    SUB R4, R3, R4
+    RET
 
-    ; Draw sprite at (R1, R2)
-    STRB R4, R1, R2
+_FIX
+  ADD R3, R3, R1
+  JMP _LOOP
 
-    ; Increment x by sprite width (8)
-    MOVI R5, 8
-    ADD R1, R1, R5
+_LOOP
+  ADD R13, R13, R12
+  ; load the char into R7
+  LOADB R7, R3
+  CMP R7, R0
+  JE _FIX
 
-    JMP _INC_PTR
+  ; PRINT R7, 0
+  STRB R7, R9, R8
 
-_SKIP_CHAR
-    ; Skip drawing, but still increment x by 8 to keep spacing
-    MOVI R5, 8
-    ADD R1, R1, R5
 
-_INC_PTR
-    ; Increment string pointer
-    MOVI R6, 1
-    ADD R0, R0, R6
+  ADD R9, R9, R4
+  ; PRINT R13, 0
+  ; PRINT R14, 0
+  CMP R13, R14  
 
-    JMP _LOOP_CHAR
+  ADD R3, R3, R1
 
-_END_LOOP
-    ; Infinite loop to keep screen displayed
-    JMP _END_LOOP
+  JL _LOOP
+
+  JMP _END
+  
+_END
+  JMP _END

@@ -50,8 +50,10 @@ static void write_string_table(FILE* f, StringTable* st) {
         const char* s = st->strings[i];
         size_t len = strlen(s);
         for (size_t j = 0; j <= len; j++) { 
-            uint16_t w = (uint16_t)(uint8_t)s[j];
-            fwrite(&w, sizeof(uint16_t), 1, f);
+            // uint16_t w = (uint16_t)(uint8_t)s[j];
+            // fwrite(&w, sizeof(uint16_t), 1, f);
+            uint8_t b = (uint8_t)s[j];
+            fwrite(&b, sizeof(uint8_t), 1, f);
         }
     }
 }
