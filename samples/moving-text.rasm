@@ -1,0 +1,40 @@
+_START
+  CALL _SETUP
+  JMP _MAIN
+
+_MAIN
+  CALL _DRAW  
+
+  JMP _MAIN
+  HALT
+
+_DRAW
+  CLS
+  MOVR R4, R1
+  STRB R0, R1, R2  
+  DRAW
+
+  MOVI R9, #0x0096
+  CMP R1, R9
+  CLE _INCREASE_X
+  RET
+
+_INCREASE_X
+  MOVI R10, #0x0001
+  ADD R1, R1, R10
+  RET
+
+_SETUP
+  ; Char Set
+  STRS R0, "REMU", 0xE010
+  ; Char
+  LOADB R0, R0
+  ; X
+  MOVI R1, #0x0001
+  ; Y
+  MOVI R2, #0x0010
+
+  INITDISPLAY
+  DRAW
+  RET
+

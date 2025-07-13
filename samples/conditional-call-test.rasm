@@ -1,0 +1,35 @@
+_START
+  MOVI R0, #0x0002
+  MOVI R1, #0x0001
+
+  CMP R0, R1
+  CEQ _EQ
+  CG _GREATER
+  CL _LESSER
+
+  PRINT R1, 1
+
+  HALT
+
+_STORE_STR
+  MOVI R2, #0xE000
+  ; LOADB R1, R2
+
+  RET
+
+_GREATER
+  STRS, R1, "Greater", #0xE000
+  CALL _STORE_STR
+  RET
+
+
+_LESSER
+  STRS, R1, "Less Than", #0xE000
+  CALL _STORE_STR
+  RET
+
+
+_EQ
+  STRS, R1, "Equal To", #0xE000
+  CALL _STORE_STR
+  RET

@@ -21,6 +21,14 @@ OpCode get_opcode_from_str(const char* instr) {
     if (strcmp(instr, "JG") == 0) return JG;
     if (strcmp(instr, "JGE") == 0) return JGE;
     if (strcmp(instr, "JMP") == 0) return JMP;
+
+    if (strcmp(instr, "CEQ") == 0) return CEQ;
+    if (strcmp(instr, "CNE") == 0) return CNE;
+    if (strcmp(instr, "CL") == 0) return CL;
+    if (strcmp(instr, "CLE") == 0) return CLE;
+    if (strcmp(instr, "CG") == 0) return CG;
+    if (strcmp(instr, "CGE") == 0) return CGE;
+
     if (strcmp(instr, "CALL") == 0) return CALL;
     if (strcmp(instr, "RET") == 0) return RET;
     if (strcmp(instr, "HALT") == 0) return HALT;
@@ -38,8 +46,8 @@ OpCode get_opcode_from_str(const char* instr) {
     if (strcmp(instr, "PRINT") == 0) return PRINT;
     // if (strcmp(instr, "PUTC") == 0) return PUTC;
 
-    if (strcmp(instr, "ENABLEDRAW") == 0) return ENABLEDRAW;
-    if (strcmp(instr, "DISABLEDRAW") == 0) return DISABLEDRAW;
+    if (strcmp(instr, "DRAW") == 0) return DRAW;
+    if (strcmp(instr, "INITDISPLAY") == 0) return INITDISPLAY;
 
     if (strcmp(instr, "STRB") == 0) return STRB;
 

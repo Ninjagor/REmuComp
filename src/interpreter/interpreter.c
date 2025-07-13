@@ -87,6 +87,36 @@ void interpret_op(VM* vm, uint16_t words[4]) {
       break;
     }
 
+    case 0x24:  // CEQ - Call if equal
+    case 0x25:  // CNE - Call if not equal
+    case 0x26:  // CL  - Call if less
+    case 0x27:  // CG  - Call if greater
+    case 0x28:  // CLE - Call if less or equal
+    case 0x29:  // CGE - Call if greater or equal
+    {
+        uint16_t target = words[1];
+        uint8_t cond = 0;
+        switch (words[0]) {
+            case 0x24: cond = (vm->cpu.flags.cmp_flag == EQUAL); break;
+            case 0x25: cond = (vm->cpu.flags.cmp_flag != EQUAL); break;
+            case 0x26: cond = (vm->cpu.flags.cmp_flag == LESS); break;
+            case 0x27: cond = (vm->cpu.flags.cmp_flag == GREATER); break;
+            case 0x28: cond = (vm->cpu.flags.cmp_flag == LESS || vm->cpu.flags.cmp_flag == EQUAL); break;
+            case 0x29: cond = (vm->cpu.flags.cmp_flag == GREATER || vm->cpu.flags.cmp_flag == EQUAL); break;
+        }
+        if (cond) {
+            if (push(&vm->ram, &vm->stack, vm->cpu.pc + 8) != SUCCESS) {
+                printf("Stack overflow on conditional CALL\n");
+                vm->cpu.flags.program_interrupt = EFINISH;
+                return;
+            }
+            vm->cpu.pc = target;
+        } else {
+            vm->cpu.pc += 8;
+        }
+        break;
+    }
+
     case 0x22: {
       uint16_t ret;
       if (pop(&vm->ram, &vm->stack, &ret) != SUCCESS) {
@@ -220,6 +250,27 @@ void interpret_op(VM* vm, uint16_t words[4]) {
         }
         putchar('\n');
       }
+      vm->cpu.pc += 8;
+      break;
+    }
+
+    case 0x70: {
+      vm->cpu.flags.draw_flag = 1;
+      vm->cpu.pc += 8;
+      break;
+    }
+
+
+    case 0x72: {
+      vm->cpu.flags.graphics_initialized = AWAITING_INITIALIZATION;
+      vm->cpu.pc += 8;
+      break;
+    }
+
+
+    case 0x71: {
+      memset(vm->vram, 0, 96 * 64);
+      // vm->cpu.flags.draw_flag = 1;
       vm->cpu.pc += 8;
       break;
     }

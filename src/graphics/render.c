@@ -12,7 +12,8 @@
 #define BLOOM_ALPHA 40
 
 static void preprocess_screen(void) {
-    ClearBackground(DARKGREEN);
+    // ClearBackground(DARKGREEN);
+    ClearBackground(BLACK);
 }
 
 static void draw_sprite_glow(int x, int y) {
@@ -30,7 +31,7 @@ static void draw_sprite_glow(int x, int y) {
 void init_display(void) {
     SetTraceLogLevel(LOG_NONE);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "REmu - VM");
-    // SetTargetFPS(60);
+    // SetTargetFPS(120);
 }
 
 void render(VM* vm) {

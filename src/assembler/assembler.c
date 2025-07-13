@@ -205,7 +205,7 @@ static Result second_pass(DynBuffer* opcodes, LabelMap* labels, ParsedLines* pli
     appendWord(opcodes, (uint16_t)opcode);
 
     if (opcode == JMP || opcode == CALL || opcode == JE || opcode == JNE || opcode == JL ||
-        opcode == JLE || opcode == JG || opcode == JGE) {
+        opcode == JLE || opcode == JG || opcode == JGE || opcode == CEQ || opcode == CLE || opcode == CL || opcode == CNE || opcode == CG || opcode == CGE) {
       const char* label = toks[1];
       int target_addr = get_label_address(labels, label);
       if (target_addr == -1) {

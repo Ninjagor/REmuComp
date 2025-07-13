@@ -27,11 +27,19 @@ typedef enum OpCode {
   JG        = 0x15,
   JGE       = 0x16,
 
+
   // Control Flow
   JMP       = 0x20,
   CALL      = 0x21,
   RET       = 0x22,
   HALT      = 0x23,
+
+  CEQ = 0x24,
+  CNE = 0x25,
+  CL = 0x26,
+  CG = 0x27,
+  CLE = 0x28,
+  CGE = 0x29,
 
   // Stack
   PUSH      = 0x30,
@@ -58,9 +66,9 @@ typedef enum OpCode {
   PUTC      = 0x61,
 
   // Graphics
-  ENABLEDRAW      = 0x70,
+  DRAW      = 0x70,
   CLS       = 0x71,
-  DISABLEDRAW      = 0x72,
+  INITDISPLAY = 0x72,
   
 
   // MEMORY

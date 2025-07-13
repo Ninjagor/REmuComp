@@ -23,6 +23,12 @@ typedef enum InterruptFlag {
   EFINISH = 0x22
 } InterruptFlag;
 
+typedef enum GraphicsInitialized {
+  INITIALIZED = 0x0001,
+  AWAITING_INITIALIZATION = 0x0002,
+  NOTINITIALIZED = 0x0000
+} GraphicsInitialized;
+
 typedef enum ModificationFlag {
   NOTALLOWED = 0x0000,
   ALLOWED = 0x0001
@@ -32,6 +38,9 @@ typedef struct Flags {
   CmpFlag cmp_flag;
   InterruptFlag program_interrupt;
   ModificationFlag modification;
+  GraphicsInitialized graphics_initialized;
+  int draw_flag; // 0-1
+  int clear_flag; // 0-1
 } Flags;
 
 typedef struct CPU {

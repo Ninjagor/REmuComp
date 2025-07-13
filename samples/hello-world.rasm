@@ -1,4 +1,5 @@
 _START
+  INITDISPLAY
   STRS R0, "HELLO", 0xE001
   STRS R6, "WORLD", 0xE100
 
@@ -17,6 +18,8 @@ _LOOP_HELLO
   LOADB R5, R0
   STRB  R5, R1, R2
 
+  DRAW
+
   ADD   R0, R0, R4     ; advance string pointer
   ADD   R1, R1, R3     ; advance X
   ADD   R7, R7, R4     ; iterator++
@@ -33,6 +36,8 @@ _LOOP_HELLO
 _LOOP_WORLD
   LOADB R5, R0
   STRB  R5, R1, R2
+
+  DRAW
 
   ADD   R0, R0, R4
   ADD   R1, R1, R3

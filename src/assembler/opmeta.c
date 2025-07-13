@@ -8,6 +8,7 @@ int get_operand_count(OpCode op) {
     case ADD:
     case SUB:
     case AND:
+    case MUL:
     case OR:
     case XOR: return 3;
     case NOT: return 2;
@@ -39,9 +40,15 @@ int get_operand_count(OpCode op) {
     case LOADR:
     case CLSM:
     case LOADB: return 2;
-    case ENABLEDRAW:
-    case DISABLEDRAW: return 0;
+    case DRAW:
+    case INITDISPLAY: return 0;
     case STRB: return 3;
+    case CEQ:
+    case CG:
+    case CGE:
+    case CL:
+    case CLE:
+    case CNE: return 1;
     default: return -1;
   }
 }

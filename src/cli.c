@@ -83,7 +83,7 @@ int cli_main(int argc, char* argv[]) {
 
       load_program(&vm, filepath);
 
-      init_display();
+      // init_display();
 
       printf("\n============================\nSTDOUT\n\n");
 

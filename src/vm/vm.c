@@ -191,9 +191,24 @@ Result run_program(VM* vm) {
             words[i] = memory[vm->cpu.pc + i * 2] | (memory[vm->cpu.pc + i * 2 + 1] << 8);
         }
 
+        if (vm->cpu.flags.graphics_initialized == AWAITING_INITIALIZATION) {
+          init_display();
+          vm->cpu.flags.graphics_initialized = INITIALIZED;
+          render(vm);
+        }
+
+        if (vm->cpu.flags.draw_flag == 1) {
+          if (vm->cpu.flags.graphics_initialized != INITIALIZED) {
+              printf("\n REmuVM - Error - attempted to render without initializing display. \n");
+              return ERROR; 
+          }
+          render(vm);
+          vm->cpu.flags.draw_flag = 0;
+        }
+
+
         interpret_op(vm, words);
 
-        render(vm);
 
         usleep(delay_us);
     }
