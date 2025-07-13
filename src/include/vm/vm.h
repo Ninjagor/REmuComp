@@ -24,8 +24,8 @@ typedef struct VM {
   size_t string_count; 
 
   // sprite table
-  // const uint8_t** sprite_table;
-  // size_t sprite_count;
+  const uint8_t** sprite_table;
+  size_t sprite_count;
 } VM;
 
 Result initialize_vm(VM* vm);
@@ -33,6 +33,9 @@ Result initialize_vm(VM* vm);
 Result load_program(VM* vm, const char* filepath);
 
 const char* get_string_from_vm(VM* vm, uint16_t idx);
+
+
+const uint8_t* get_sprite_from_vm(VM* vm, uint16_t idx);
 
 Result run_program(VM* vm);
 

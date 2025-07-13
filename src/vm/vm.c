@@ -29,7 +29,6 @@ Result initialize_vm(VM *vm) {
 
   load_spritesheet_to_memory(vm->ram.memory);
 
-
   // vm->stack.start = STACK_START;        // offset, not absolute address
   // vm->stack.sp = vm->stack.start + STACK_SIZE;
   // vm->stack.size = STACK_SIZE;
@@ -67,6 +66,73 @@ Result initialize_vm(VM *vm) {
 
   return SUCCESS;
 }
+
+void load_sprite_table_debug(FILE* f) {
+    printf("\n\n=== Sprite Table Debug Output ===\n");
+
+    int ch;
+    size_t byte_count = 0;
+    uint8_t sprite[8];
+
+    while (true) {
+        size_t i = 0;
+        // Read 8 bytes for one sprite
+        for (; i < 8; i++) {
+            ch = fgetc(f);
+            if (ch == EOF) break;
+            sprite[i] = (uint8_t)ch;
+        }
+        if (i == 0) break; // no more sprites
+
+        printf("Sprite %zu: ", byte_count / 8);
+        for (size_t j = 0; j < i; j++) {
+            printf("%02X ", sprite[j]);
+        }
+        printf("\n");
+
+        if (i < 8) break; // last incomplete sprite
+        byte_count += i;
+    }
+
+    printf("=== End of Sprite Table ===\n");
+}
+
+void load_sprite_table(VM* vm, FILE* f) {
+  vm->sprite_table = malloc(MAX_SPRITES * sizeof(uint8_t));
+  if (!vm->sprite_table) {
+    printf("Failed to allocate sprite table\n");
+    vm->string_count = 0;
+    return;
+  }
+  vm->sprite_count = 0;
+  while (true) {
+  }
+    // while (true) {
+    //     char buffer[MAX_STRING_LENGTH];
+    //     int i = 0;
+    //     int ch;
+    //
+    //     while ((ch = fgetc(f)) != EOF) {
+    //         if (ch == 0) break;  // null terminator
+    //         if (i < MAX_STRING_LENGTH - 1) {
+    //             buffer[i++] = (char)ch;
+    //         }
+    //     }
+    //     buffer[i] = '\0';
+    //
+    //     if (i == 0) break;  // no more strings
+    //
+    //     vm->string_table[vm->string_count] = strdup(buffer);
+    //     if (!vm->string_table[vm->string_count]) {
+    //         printf("Failed to duplicate string\n");
+    //         break;
+    //     }
+    //
+    //     vm->string_count++;
+    //     if (vm->string_count >= MAX_STRINGS) break;
+    // }
+}
+
 
 
 void load_string_table(VM* vm, FILE* f) {
@@ -110,7 +176,6 @@ const char* get_string_from_vm(VM* vm, uint16_t idx) {
     return vm->string_table[idx];
 }
 
-
 Result load_program(VM* vm, const char* filepath) {
     FILE* f = fopen(filepath, "rb");
     if (!f) return ERROR;
@@ -134,6 +199,7 @@ Result load_program(VM* vm, const char* filepath) {
     size_t len_words = file_size / 2;
     size_t delimiter_index = len_words;
 
+    // Find first delimiter (0xFFFF 4 times)
     for (size_t i = 0; i < len_words - 3; i++) {
         uint16_t w0 = bytes[i * 2] | (bytes[i * 2 + 1] << 8);
         uint16_t w1 = bytes[(i + 1) * 2] | (bytes[(i + 1) * 2 + 1] << 8);
@@ -164,23 +230,126 @@ Result load_program(VM* vm, const char* filepath) {
 
     uint8_t* ram_bytes = (uint8_t*)vm->ram.memory;
 
+    // Copy program bytes to RAM
     memcpy(ram_bytes + PROGRAM_START, bytes, program_bytes);
 
+    // Copy data bytes to RAM data segment if present
     if (data_bytes > 0) {
         memcpy(ram_bytes + DATA_SEGMENT_START,
                bytes + program_bytes + 8,
                data_bytes);
     }
 
-    // Move file cursor to string table start
-    fseek(f, program_bytes + 8, SEEK_SET);
+    long string_start = program_bytes + 8;
+
+    // Find second delimiter (0xFFFF 4 times) after first delimiter + 4 words
+    long sprite_start = -1;
+    for (size_t i = delimiter_index + 4; i < len_words - 3; i++) {
+        uint16_t w0 = bytes[i * 2] | (bytes[i * 2 + 1] << 8);
+        uint16_t w1 = bytes[(i + 1) * 2] | (bytes[(i + 1) * 2 + 1] << 8);
+        uint16_t w2 = bytes[(i + 2) * 2] | (bytes[(i + 2) * 2 + 1] << 8);
+        uint16_t w3 = bytes[(i + 3) * 2] | (bytes[(i + 3) * 2 + 1] << 8);
+
+        if (w0 == 0xFFFF && w1 == 0xFFFF && w2 == 0xFFFF && w3 == 0xFFFF) {
+            sprite_start = i * 2 + 8; // byte offset after second delimiter
+            break;
+        }
+    }
+
+    if (sprite_start == -1) {
+        printf("Error: second delimiter not found\n");
+        free(bytes);
+        fclose(f);
+        return ERROR;
+    }
+
+    // Load string table from file starting at string_start
+    fseek(f, string_start, SEEK_SET);
     load_string_table(vm, f);
+
+    // Load sprite table debug from file starting at sprite_start
+    fseek(f, sprite_start, SEEK_SET);
+    load_sprite_table_debug(f);
 
     free(bytes);
     fclose(f);
 
     return SUCCESS;
 }
+
+
+// Result load_program(VM* vm, const char* filepath) {
+//     FILE* f = fopen(filepath, "rb");
+//     if (!f) return ERROR;
+//
+//     fseek(f, 0, SEEK_END);
+//     size_t file_size = ftell(f);
+//     rewind(f);
+//
+//     uint8_t* bytes = malloc(file_size);
+//     if (!bytes) {
+//         fclose(f);
+//         return ERROR;
+//     }
+//
+//     if (fread(bytes, 1, file_size, f) != file_size) {
+//         free(bytes);
+//         fclose(f);
+//         return ERROR;
+//     }
+//
+//     size_t len_words = file_size / 2;
+//     size_t delimiter_index = len_words;
+//
+//     for (size_t i = 0; i < len_words - 3; i++) {
+//         uint16_t w0 = bytes[i * 2] | (bytes[i * 2 + 1] << 8);
+//         uint16_t w1 = bytes[(i + 1) * 2] | (bytes[(i + 1) * 2 + 1] << 8);
+//         uint16_t w2 = bytes[(i + 2) * 2] | (bytes[(i + 2) * 2 + 1] << 8);
+//         uint16_t w3 = bytes[(i + 3) * 2] | (bytes[(i + 3) * 2 + 1] << 8);
+//
+//         if (w0 == 0xFFFF && w1 == 0xFFFF && w2 == 0xFFFF && w3 == 0xFFFF) {
+//             delimiter_index = i;
+//             break;
+//         }
+//     }
+//
+//     if (delimiter_index == len_words) {
+//         printf("Error: delimiter not found\n");
+//         free(bytes);
+//         fclose(f);
+//         return ERROR;
+//     }
+//
+//     size_t program_bytes = delimiter_index * 2;
+//     size_t data_bytes = (file_size > program_bytes + 8) ? (file_size - program_bytes - 8) : 0;
+//
+//     if (program_bytes > PROGRAM_MAX) {
+//         free(bytes);
+//         fclose(f);
+//         return ERROR;
+//     }
+//
+//     uint8_t* ram_bytes = (uint8_t*)vm->ram.memory;
+//
+//     memcpy(ram_bytes + PROGRAM_START, bytes, program_bytes);
+//
+//     if (data_bytes > 0) {
+//         memcpy(ram_bytes + DATA_SEGMENT_START,
+//                bytes + program_bytes + 8,
+//                data_bytes);
+//     }
+//
+//     // Move file cursor to string table start
+//     fseek(f, program_bytes + 8, SEEK_SET);
+//     load_string_table(vm, f);
+//
+//     load_sprite_table_debug(f);
+//
+//     free(bytes);
+//     fclose(f);
+//
+//     return SUCCESS;
+// }
 
 
 Result run_program(VM* vm) {

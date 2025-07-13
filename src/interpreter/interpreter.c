@@ -287,10 +287,27 @@ void interpret_op(VM* vm, uint16_t words[4]) {
       break;
     }
 
+    // LDS
     case 0x83: {
-
-      vm->cpu.pc += 8;
-      break;
+//         uint16_t reg = words[1], idx = words[2], addr = words[3];
+//         const uint8_t* sprite = get_sprite_from_vm(vm, idx);
+//
+//         if (!sprite || addr + SPRITE_SIZE > RAM_SIZE) {
+//
+// printf("\nLDS idx=%u, addr=%u, sprite_count=%zu\n", idx, addr, vm->sprite_count);
+//             printf("LDS Error\n");
+//             vm->cpu.flags.program_interrupt = EFINISH;
+//             return;
+//         }
+//
+//         for (size_t i = 0; i < SPRITE_SIZE; i++) {
+//             printf("\nSPRITE CURR BYTE: %02X\n", sprite[i]);
+//             ((uint8_t*)vm->ram.memory)[addr + i] = sprite[i];
+//         }
+//
+//         vm->cpu.registers[reg].value = addr;
+        vm->cpu.pc += 8;
+        break;
     }
 
     case 0x90:
