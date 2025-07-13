@@ -30,7 +30,7 @@ static void draw_sprite_glow(int x, int y) {
 void init_display(void) {
     SetTraceLogLevel(LOG_NONE);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "REmu - VM");
-    SetTargetFPS(60);
+    // SetTargetFPS(60);
 }
 
 void render(VM* vm) {

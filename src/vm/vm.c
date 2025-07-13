@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h> 
 
 Result initialize_vm(VM *vm) {
   vm->ram.size = RAM_SIZE;
@@ -171,32 +172,34 @@ Result load_program(VM* vm, const char* filepath) {
 }
 
 Result run_program(VM* vm) {
-  while (true) {
-    InterruptFlag interrupt = vm->cpu.flags.program_interrupt;
-    if (interrupt != RUNNING) {
-      if (interrupt == EFINISH) {
-        printf("\nREmu VM Exited with an error.\n");
-      } else if (interrupt == SFINISH) {
-        printf("\nREmu VM Exited successfully.\n");
-      }
-      break;
+    const useconds_t delay_us = 1000000 / VM_OPS_PER_SECOND;
+
+    while (true) {
+        InterruptFlag interrupt = vm->cpu.flags.program_interrupt;
+        if (interrupt != RUNNING) {
+            if (interrupt == EFINISH) {
+                printf("\nREmu VM Exited with an error.\n");
+            } else if (interrupt == SFINISH) {
+                printf("\nREmu VM Exited successfully.\n");
+            }
+            break;
+        }
+
+        uint16_t words[4];
+        uint8_t* memory = (uint8_t*)vm->ram.memory;
+
+        for (int i = 0; i < 4; i++) {
+            words[i] = memory[vm->cpu.pc + i * 2] | (memory[vm->cpu.pc + i * 2 + 1] << 8);
+        }
+
+        interpret_op(vm, words);
+
+        render(vm);
+
+        usleep(delay_us);
     }
 
-    uint16_t words[4];
-    uint8_t* memory = (uint8_t*)vm->ram.memory;
-
-    for (int i = 0; i < 4; i++) {
-      words[i] = memory[vm->cpu.pc + i * 2] | (memory[vm->cpu.pc + i * 2 + 1] << 8);
-    }
-
-    // printf("0x%04X \n", words[0]);
-
-    interpret_op(vm, words);
-
-    render(vm);
-  }
-
-  return SUCCESS;
+    return SUCCESS;
 }
 
 void cleanup_vm(VM *vm) {

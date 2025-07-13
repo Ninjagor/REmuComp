@@ -49,3 +49,6 @@
 #define SCREEN_WIDTH 96
 #define SCREEN_HEIGHT 64
 #define SPRITE_SIZE 8
+
+/** TIMING **/
+#define VM_OPS_PER_SECOND 500
