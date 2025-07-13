@@ -86,6 +86,14 @@ char** parse_line(const char* line) {
             size_t len = end - ptr + 1;
             tokens[idx] = strndup(ptr, len);
             ptr = end + 1;
+        }  else if (*ptr == '[') {
+            // Bracketed token: find matching ']'
+            char* start = ptr;
+            char* end = strchr(ptr + 1, ']');
+            if (!end) break; // error: no closing bracket
+            size_t len = end - start + 1;
+            tokens[idx] = strndup(start, len);
+            ptr = end + 1;
         } else {
             char* start = ptr;
             while (*ptr && !isspace((unsigned char)*ptr)) ptr++;

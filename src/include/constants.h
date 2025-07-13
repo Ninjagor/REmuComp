@@ -52,3 +52,6 @@
 
 /** TIMING **/
 #define VM_OPS_PER_SECOND 500
+
+/** SPRITES **/
+#define MAX_SPRITE_SIZE 8
