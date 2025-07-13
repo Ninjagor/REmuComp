@@ -55,3 +55,5 @@
 
 /** SPRITES **/
 #define MAX_SPRITE_SIZE 8
+#define MAX_SPRITES 1024
+#define SPRITE_SIZE 8

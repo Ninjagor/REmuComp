@@ -22,6 +22,10 @@ typedef struct VM {
   // string table
   char** string_table;
   size_t string_count; 
+
+  // sprite table
+  // const uint8_t** sprite_table;
+  // size_t sprite_count;
 } VM;
 
 Result initialize_vm(VM* vm);

@@ -287,6 +287,12 @@ void interpret_op(VM* vm, uint16_t words[4]) {
       break;
     }
 
+    case 0x83: {
+
+      vm->cpu.pc += 8;
+      break;
+    }
+
     case 0x90:
       vm->cpu.flags.modification = ALLOWED;
       vm->cpu.pc += 8;

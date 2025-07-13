@@ -68,6 +68,7 @@ Result initialize_vm(VM *vm) {
   return SUCCESS;
 }
 
+
 void load_string_table(VM* vm, FILE* f) {
     vm->string_table = malloc(MAX_STRINGS * sizeof(char*));
     if (!vm->string_table) {
@@ -80,17 +81,17 @@ void load_string_table(VM* vm, FILE* f) {
     while (true) {
         char buffer[MAX_STRING_LENGTH];
         int i = 0;
-        uint16_t ch;
+        int ch;
 
-        while (fread(&ch, sizeof(uint8_t), 1, f) == 1) {
-            if (ch == 0) break;
+        while ((ch = fgetc(f)) != EOF) {
+            if (ch == 0) break;  // null terminator
             if (i < MAX_STRING_LENGTH - 1) {
-                buffer[i++] = (char)(ch & 0xFF);
+                buffer[i++] = (char)ch;
             }
         }
         buffer[i] = '\0';
 
-        if (i == 0) break;
+        if (i == 0) break;  // no more strings
 
         vm->string_table[vm->string_count] = strdup(buffer);
         if (!vm->string_table[vm->string_count]) {
@@ -103,10 +104,12 @@ void load_string_table(VM* vm, FILE* f) {
     }
 }
 
+
 const char* get_string_from_vm(VM* vm, uint16_t idx) {
     if (idx >= vm->string_count) return NULL;
     return vm->string_table[idx];
 }
+
 
 Result load_program(VM* vm, const char* filepath) {
     FILE* f = fopen(filepath, "rb");
@@ -121,15 +124,23 @@ Result load_program(VM* vm, const char* filepath) {
         fclose(f);
         return ERROR;
     }
-    fread(bytes, 1, file_size, f);
 
-    uint16_t* words = (uint16_t*)bytes;
+    if (fread(bytes, 1, file_size, f) != file_size) {
+        free(bytes);
+        fclose(f);
+        return ERROR;
+    }
+
     size_t len_words = file_size / 2;
-
     size_t delimiter_index = len_words;
+
     for (size_t i = 0; i < len_words - 3; i++) {
-        if (words[i] == 0xFFFF && words[i + 1] == 0xFFFF &&
-            words[i + 2] == 0xFFFF && words[i + 3] == 0xFFFF) {
+        uint16_t w0 = bytes[i * 2] | (bytes[i * 2 + 1] << 8);
+        uint16_t w1 = bytes[(i + 1) * 2] | (bytes[(i + 1) * 2 + 1] << 8);
+        uint16_t w2 = bytes[(i + 2) * 2] | (bytes[(i + 2) * 2 + 1] << 8);
+        uint16_t w3 = bytes[(i + 3) * 2] | (bytes[(i + 3) * 2 + 1] << 8);
+
+        if (w0 == 0xFFFF && w1 == 0xFFFF && w2 == 0xFFFF && w3 == 0xFFFF) {
             delimiter_index = i;
             break;
         }
@@ -142,33 +153,35 @@ Result load_program(VM* vm, const char* filepath) {
         return ERROR;
     }
 
-    size_t program_words = delimiter_index;
-    size_t data_words = (len_words > delimiter_index + 4) ? (len_words - delimiter_index - 4) : 0;
+    size_t program_bytes = delimiter_index * 2;
+    size_t data_bytes = (file_size > program_bytes + 8) ? (file_size - program_bytes - 8) : 0;
 
-    if (program_words * 2 > PROGRAM_MAX) {
+    if (program_bytes > PROGRAM_MAX) {
         free(bytes);
         fclose(f);
         return ERROR;
     }
 
     uint8_t* ram_bytes = (uint8_t*)vm->ram.memory;
-    memcpy(ram_bytes + PROGRAM_START, bytes, program_words * 2);
 
-    if (data_words > 0) {
+    memcpy(ram_bytes + PROGRAM_START, bytes, program_bytes);
+
+    if (data_bytes > 0) {
         memcpy(ram_bytes + DATA_SEGMENT_START,
-               bytes + (delimiter_index + 4) * 2,
-               data_words * 2);
+               bytes + program_bytes + 8,
+               data_bytes);
     }
 
-    free(bytes);
-
     // Move file cursor to string table start
-    fseek(f, (delimiter_index + 4) * 2, SEEK_SET);
+    fseek(f, program_bytes + 8, SEEK_SET);
     load_string_table(vm, f);
 
+    free(bytes);
     fclose(f);
+
     return SUCCESS;
 }
+
 
 Result run_program(VM* vm) {
     const useconds_t delay_us = 1000000 / VM_OPS_PER_SECOND;
