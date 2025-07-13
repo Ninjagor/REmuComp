@@ -60,6 +60,10 @@ OpCode get_opcode_from_str(const char* instr) {
 
     if (strcmp(instr, "CLSM") == 0) return CLSM;
 
+
+    if (strcmp(instr, "POLL") == 0) return POLL;
+    if (strcmp(instr, "RDI") == 0) return RDI;
+
     if (strcmp(instr, "DSTR") == 0) return -3;
     if (strcmp(instr, "STRS") == 0) return -2;
     if (strcmp(instr, "LDS") == 0) return -4;

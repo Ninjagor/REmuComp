@@ -4,3 +4,4 @@
 
 void init_display(void);
 void render(VM* vm);
+void poll_keys(VM* vm);

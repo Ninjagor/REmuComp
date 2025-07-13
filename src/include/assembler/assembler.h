@@ -72,6 +72,12 @@ typedef enum OpCode {
   DRAW      = 0x70,
   CLS       = 0x71,
   INITDISPLAY = 0x72,
+
+  // POLL
+  POLL = 0x73,
+
+  // Read key input
+  RDI = 0x74,
   
 
   // MEMORY
