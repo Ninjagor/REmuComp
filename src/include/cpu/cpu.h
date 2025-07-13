@@ -1,6 +1,7 @@
 #ifndef CPU_H
 #define CPU_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include "constants.h"
@@ -41,6 +42,9 @@ typedef struct Flags {
   GraphicsInitialized graphics_initialized;
   int draw_flag; // 0-1
   int clear_flag; // 0-1
+  int input_poll_flag; // 0-1
+
+  bool keys[16];
 } Flags;
 
 typedef struct CPU {

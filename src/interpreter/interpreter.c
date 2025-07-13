@@ -304,6 +304,20 @@ void interpret_op(VM* vm, uint16_t words[4]) {
       break;
     }
 
+    case 0x73: {
+      vm->cpu.flags.input_poll_flag = 1;
+
+      vm->cpu.pc += 8;
+      break;
+    }
+
+    case 0x74: {
+      uint16_t reg1_id = words[1], input_type = words[2];
+      vm->cpu.registers[reg1_id].value = vm->cpu.flags.keys[input_type] ? 0x0001 : 0x0000;
+      vm->cpu.pc += 8;
+      break;
+    }
+
     case 0x81: {
       uint16_t addr = words[1], len = words[2];
       if (addr + len > RAM_SIZE) {
@@ -340,12 +354,6 @@ void interpret_op(VM* vm, uint16_t words[4]) {
                 vm->cpu.flags.program_interrupt = EFINISH;
                 return;
             }
-
-// printf("Sprite loaded to RAM at address 0x%04X:\n", addr);
-    // for (int i = 0; i < SPRITE_SIZE; i++) {
-        // printf("%02X ", ram_bytes[addr + i]);
-    // }
-    // printf("\n");
         }
 
 

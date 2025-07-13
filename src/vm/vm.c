@@ -402,6 +402,16 @@ Result run_program(VM* vm) {
           render(vm);
         }
 
+        if (vm->cpu.flags.input_poll_flag == 1) {
+          if (vm->cpu.flags.graphics_initialized != INITIALIZED) {
+              printf("\n REmuVM - Error - attempted to render without initializing display. \n");
+              return ERROR; 
+          }
+          
+          poll_keys(vm);
+          vm->cpu.flags.input_poll_flag = 0;
+        }
+
         if (vm->cpu.flags.draw_flag == 1) {
           if (vm->cpu.flags.graphics_initialized != INITIALIZED) {
               printf("\n REmuVM - Error - attempted to render without initializing display. \n");

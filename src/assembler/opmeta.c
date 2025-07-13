@@ -33,12 +33,14 @@ int get_operand_count(OpCode op) {
     case DISABLESMOD:
     case RET:
     case HALT:
+    case POLL:
     case CLS: return 0;
     case CMP: return 2;
     case LOAD:
     case STORE:
     case LOADR:
     case CLSM:
+    case RDI:
     case LOADB: return 2;
     case DRAW:
     case INITDISPLAY: return 0;
