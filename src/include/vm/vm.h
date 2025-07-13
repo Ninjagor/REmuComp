@@ -24,7 +24,7 @@ typedef struct VM {
   size_t string_count; 
 
   // sprite table
-  const uint8_t** sprite_table;
+  uint8_t* sprite_table;
   size_t sprite_count;
 } VM;
 

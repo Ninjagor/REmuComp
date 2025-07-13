@@ -289,23 +289,37 @@ void interpret_op(VM* vm, uint16_t words[4]) {
 
     // LDS
     case 0x83: {
-//         uint16_t reg = words[1], idx = words[2], addr = words[3];
-//         const uint8_t* sprite = get_sprite_from_vm(vm, idx);
-//
-//         if (!sprite || addr + SPRITE_SIZE > RAM_SIZE) {
-//
-// printf("\nLDS idx=%u, addr=%u, sprite_count=%zu\n", idx, addr, vm->sprite_count);
-//             printf("LDS Error\n");
-//             vm->cpu.flags.program_interrupt = EFINISH;
-//             return;
-//         }
-//
-//         for (size_t i = 0; i < SPRITE_SIZE; i++) {
-//             printf("\nSPRITE CURR BYTE: %02X\n", sprite[i]);
-//             ((uint8_t*)vm->ram.memory)[addr + i] = sprite[i];
-//         }
-//
-//         vm->cpu.registers[reg].value = addr;
+        uint16_t reg = words[1], idx = words[2], addr = words[3];
+        const uint8_t* sprite = get_sprite_from_vm(vm, idx);
+
+        if (!sprite || addr + SPRITE_SIZE > RAM_SIZE) {
+            printf("\nLDS idx=%u, addr=%u, sprite_count=%zu\n", idx, addr, vm->sprite_count);
+            printf("LDS Error\n");
+            vm->cpu.flags.program_interrupt = EFINISH;
+            return;
+        } else {
+
+            uint8_t* ram_bytes = (uint8_t*)vm->ram.memory;
+            for (int i = 0; i < SPRITE_SIZE; i++) {
+                ram_bytes[addr + i] = sprite[i];
+            }
+
+            if (reg < CPU_REGISTER_COUNT) {
+                vm->cpu.registers[reg].value = addr;
+            } else {
+                printf("LDS Error: invalid register %u\n", reg);
+                vm->cpu.flags.program_interrupt = EFINISH;
+                return;
+            }
+
+// printf("Sprite loaded to RAM at address 0x%04X:\n", addr);
+    // for (int i = 0; i < SPRITE_SIZE; i++) {
+        // printf("%02X ", ram_bytes[addr + i]);
+    // }
+    // printf("\n");
+        }
+
+
         vm->cpu.pc += 8;
         break;
     }

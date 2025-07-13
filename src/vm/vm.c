@@ -76,13 +76,12 @@ void load_sprite_table_debug(FILE* f) {
 
     while (true) {
         size_t i = 0;
-        // Read 8 bytes for one sprite
         for (; i < 8; i++) {
             ch = fgetc(f);
             if (ch == EOF) break;
             sprite[i] = (uint8_t)ch;
         }
-        if (i == 0) break; // no more sprites
+        if (i == 0) break; 
 
         printf("Sprite %zu: ", byte_count / 8);
         for (size_t j = 0; j < i; j++) {
@@ -90,7 +89,7 @@ void load_sprite_table_debug(FILE* f) {
         }
         printf("\n");
 
-        if (i < 8) break; // last incomplete sprite
+        if (i < 8) break;
         byte_count += i;
     }
 
@@ -98,41 +97,61 @@ void load_sprite_table_debug(FILE* f) {
 }
 
 void load_sprite_table(VM* vm, FILE* f) {
-  vm->sprite_table = malloc(MAX_SPRITES * sizeof(uint8_t));
-  if (!vm->sprite_table) {
-    printf("Failed to allocate sprite table\n");
-    vm->string_count = 0;
-    return;
-  }
-  vm->sprite_count = 0;
-  while (true) {
-  }
-    // while (true) {
-    //     char buffer[MAX_STRING_LENGTH];
-    //     int i = 0;
-    //     int ch;
-    //
-    //     while ((ch = fgetc(f)) != EOF) {
-    //         if (ch == 0) break;  // null terminator
-    //         if (i < MAX_STRING_LENGTH - 1) {
-    //             buffer[i++] = (char)ch;
-    //         }
-    //     }
-    //     buffer[i] = '\0';
-    //
-    //     if (i == 0) break;  // no more strings
-    //
-    //     vm->string_table[vm->string_count] = strdup(buffer);
-    //     if (!vm->string_table[vm->string_count]) {
-    //         printf("Failed to duplicate string\n");
-    //         break;
-    //     }
-    //
-    //     vm->string_count++;
-    //     if (vm->string_count >= MAX_STRINGS) break;
-    // }
+    vm->sprite_table = malloc(MAX_SPRITES * SPRITE_SIZE * sizeof(uint8_t));
+    if (!vm->sprite_table) {
+        printf("Failed to allocate sprite table\n");
+        vm->sprite_count = 0;
+        return;
+    }
+    vm->sprite_count = 0;
+
+    while (vm->sprite_count < MAX_SPRITES) {
+        size_t read_bytes = fread(vm->sprite_table + vm->sprite_count * SPRITE_SIZE, 1, SPRITE_SIZE, f);
+        if (read_bytes == 0) break; // EOF
+        if (read_bytes < SPRITE_SIZE) {
+            printf("Warning: incomplete sprite data\n");
+            break;
+        }
+        vm->sprite_count++;
+    }
 }
 
+// void load_sprite_table(VM* vm, FILE* f) {
+//     vm->sprite_table = malloc(MAX_SPRITES * 8 * sizeof(uint8_t));
+//     if (!vm->sprite_table) {
+//         printf("Failed to allocate sprite table\n");
+//         vm->sprite_count = 0;
+//         return;
+//     }
+//     vm->sprite_count = 0;
+//
+//     while (vm->sprite_count < MAX_SPRITES) {
+//         uint8_t sprite[8];
+//         size_t read_bytes = fread(sprite, 1, 8, f);
+//         if (read_bytes == 0) break; // EOF
+//         if (read_bytes < 8) {
+//             printf("Warning: incomplete sprite data\n");
+//             break;
+//         }
+//
+//         memcpy(&vm->sprite_table[vm->sprite_count * 8], sprite, 8);
+//         vm->sprite_count++;
+//     }
+// }
+
+const uint8_t* get_sprite_from_vm(VM* vm, uint16_t idx) {
+    if (idx >= vm->sprite_count) return NULL;
+
+    const uint8_t* sprite = &vm->sprite_table[idx * SPRITE_SIZE];
+
+    // printf("\nSprite %u: \n", idx);
+    for (int i = 0; i < SPRITE_SIZE; i++) {
+        // printf("%02X ", sprite[i]);
+    }
+    // printf("\n");
+
+    return sprite;
+}
 
 
 void load_string_table(VM* vm, FILE* f) {
@@ -267,9 +286,13 @@ Result load_program(VM* vm, const char* filepath) {
     fseek(f, string_start, SEEK_SET);
     load_string_table(vm, f);
 
-    // Load sprite table debug from file starting at sprite_start
+    // Debug sprites from file starting at sprite_start
     fseek(f, sprite_start, SEEK_SET);
     load_sprite_table_debug(f);
+
+    // Load sprite table
+    fseek(f, sprite_start, SEEK_SET);
+    load_sprite_table(vm, f);
 
     free(bytes);
     fclose(f);
@@ -411,5 +434,11 @@ void cleanup_vm(VM *vm) {
     if (vm->ram.memory) {
         free(vm->ram.memory);
         vm->ram.memory = NULL;
+    }
+
+
+    if (vm->sprite_table) {
+        free(vm->sprite_table);
+        vm->sprite_table = NULL;
     }
 }
