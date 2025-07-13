@@ -4,9 +4,9 @@
 
 #define RAM_SIZE 65536  // 64 KB total RAM
 
-// 48 KB program segment
+// 42 KB program segment
 #define PROGRAM_START 0x0000
-#define PROGRAM_SIZE 0xC000  // 48 KB = 0xC000 bytes
+#define PROGRAM_SIZE  0xA800  // 48 KB = 0xC000 bytes
 #define PROGRAM_END (PROGRAM_START + PROGRAM_SIZE - 1)  // 0xBFFF
 #define PROGRAM_MAX PROGRAM_END
 
@@ -25,15 +25,11 @@
 #define SPRITESHEET_START (STACK_END + 1) 
 #define SPRITESHEET_END (SPRITESHEET_START + SPRITESHEET_SIZE - 1)
 
-// 5 KB data segment
-#define DATA_SEGMENT_SIZE 0x1400
+// 11 KB data segment
+#define DATA_SEGMENT_SIZE 0x2C00
 #define DATA_SEGMENT_START (SPRITESHEET_END + 1)
 #define DATA_SEGMENT_END (DATA_SEGMENT_START + DATA_SEGMENT_SIZE - 1) 
 
-// 0.5 KB Free - TODO
-// #define FREE_SIZE 0x200  // 0.5 KB
-// #define FREE_START (DATA_SEGMENT_END + 1)  // 0xF400
-// #define FREE_END (FREE_START + FREE_SIZE - 1)  // 0xF5FF
 
 
 /** CPU RELATED STUFF **/
@@ -51,7 +47,7 @@
 #define SPRITE_SIZE 8
 
 /** TIMING **/
-#define VM_OPS_PER_SECOND 500
+#define VM_OPS_PER_SECOND 1000
 
 /** SPRITES **/
 #define MAX_SPRITE_SIZE 8
