@@ -5,56 +5,17 @@
 #include "constants.h"
 #include "utils/types.h"
 #include "vm/vm.h"
-
+#include <signal.h>
+#include <unistd.h>
 #include "cli.h"
 
-int main(int argc, char* argv[]) {
-    return cli_main(argc, argv);
+void segfault_handler(int sig) {
+    (void)sig;
+    fprintf(stderr, "\nREmuVM - Unsafe operation detected. Program exited.\n");
+    _exit(1);
 }
 
-// int main() {
-//   printf("\n=========================\n** REmuVM **\n=========================\n");
-//
-//
-//   Result a = assemble("/Users/rohit/rohit-project-work/remucomp/samples/sample3.rasm");
-//   if (a == ERROR) {
-//     printf("\n");
-//     return 1;
-//   }
-//
-//   VM vm = {0};
-//
-//   Result init = initialize_vm(&vm);
-//   if (init == ERROR) {
-//     return 1;
-//   }
-//
-//
-//   load_program(&vm, "/Users/rohit/rohit-project-work/remucomp/out/a.bin");
-//
-//   printf("\n============================\nSTDOUT\n\n");
-//
-//   Result r = run_program(&vm);
-//
-//
-//   printf("============================\n");
-//
-//   printf("\nCPU Register Peek: \n");
-//   for (int i = 0; i < CPU_REGISTER_COUNT; i++) {
-//     char* p = "";
-//     if (i < 10) {
-//       p = "0";
-//     }
-//     printf("R%s%i 0x%04X ", p, i, vm.cpu.registers[i].value);
-//     if ((i+1)%4 == 0) {
-//       printf("\n");
-//     }
-//   }
-//
-//   if (r == ERROR) {
-//     // :(
-//   }
-//
-//   printf("\n");
-//   return 0;
-// }
+int main(int argc, char* argv[]) {
+    // signal(SIGSEGV, segfault_handler);
+    return cli_main(argc, argv);
+}

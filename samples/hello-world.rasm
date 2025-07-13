@@ -1,0 +1,45 @@
+_START
+  STRS R0, "HELLO", 0xE001
+  STRS R6, "WORLD", 0xE100
+
+  ; Constants
+  MOVI R3, 0x0008      ; char spacing (X increment)
+  MOVI R4, 0x0001      ; byte increment
+
+  ; --- Print "HELLO" ---
+  MOVI R0, 0xE001      ; pointer to "HELLO"
+  MOVI R1, 0x0018      ; start X
+  MOVI R2, 0x0015      ; Y
+  MOVI R7, 0x0000      ; iterator
+  MOVI R14, 0x0005     ; max length
+
+_LOOP_HELLO
+  LOADB R5, R0
+  STRB  R5, R1, R2
+
+  ADD   R0, R0, R4     ; advance string pointer
+  ADD   R1, R1, R3     ; advance X
+  ADD   R7, R7, R4     ; iterator++
+
+  CMP   R7, R14
+  JL    _LOOP_HELLO
+
+  ; --- Print "WORLD" ---
+  MOVI R0, 0xE100      ; pointer to "WORLD"
+  MOVI R1, 0x0018      ; reset X
+  ADD   R2, R2, R3     ; move Y down by one line
+  MOVI R7, 0x0000      ; reset iterator
+
+_LOOP_WORLD
+  LOADB R5, R0
+  STRB  R5, R1, R2
+
+  ADD   R0, R0, R4
+  ADD   R1, R1, R3
+  ADD   R7, R7, R4
+
+  CMP   R7, R14
+  JL    _LOOP_WORLD
+
+_END
+  JMP _END

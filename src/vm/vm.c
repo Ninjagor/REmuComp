@@ -64,7 +64,6 @@ Result initialize_vm(VM *vm) {
 //         }
 //     }
 // }
-  printf("\nLoading VRAM with a\n");
 
   return SUCCESS;
 }

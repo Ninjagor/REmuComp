@@ -140,7 +140,13 @@ void interpret_op(VM* vm, uint16_t words[4]) {
       uint16_t y  = vm->cpu.registers[words[3]].value;
       if (x >= SCREEN_WIDTH - SPRITE_SIZE) x = SCREEN_WIDTH - SPRITE_SIZE;
       if (y >= SCREEN_HEIGHT - SPRITE_SIZE) y = SCREEN_HEIGHT - SPRITE_SIZE;
-      const uint8_t* sprite = &vm->spritesheet[id * SPRITESHEET_SPRITE_SIZE];
+
+      // if (id < 48 || id > 90) {
+      //   vm->cpu.pc += 8;
+      //   break;
+      // }
+
+      const uint8_t* sprite = &vm->spritesheet[(id-0) * SPRITESHEET_SPRITE_SIZE];
       for (int row = 0; row < SPRITE_SIZE; row++) {
         uint8_t bits = sprite[row];
         for (int col = 0; col < SPRITE_SIZE; col++) {
