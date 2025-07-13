@@ -324,8 +324,13 @@ Result assemble(const char* filepath) {
 
   fwrite(opcodes.data, sizeof(uint16_t), opcodes.size, f);
 
-  uint16_t delimiter = 0xFFFF;
-  fwrite(&delimiter, sizeof(uint16_t), 1, f);
+  // uint16_t delimiter = 0xFFFF;
+  // fwrite(&delimiter, sizeof(uint16_t), 1, f);
+
+  uint16_t delim = 0xFFFF;
+  for (int i = 0; i < 4; i++) {
+      fwrite(&delim, sizeof(uint16_t), 1, f);
+  }
 
   write_string_table(f, &strtable);
 

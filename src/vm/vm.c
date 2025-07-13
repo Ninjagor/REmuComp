@@ -127,15 +127,23 @@ Result load_program(VM* vm, const char* filepath) {
     size_t len_words = file_size / 2;
 
     size_t delimiter_index = len_words;
-    for (size_t i = 0; i < len_words; i++) {
-        if (words[i] == 0xFFFF) {
+    for (size_t i = 0; i < len_words - 3; i++) {
+        if (words[i] == 0xFFFF && words[i + 1] == 0xFFFF &&
+            words[i + 2] == 0xFFFF && words[i + 3] == 0xFFFF) {
             delimiter_index = i;
             break;
         }
     }
 
+    if (delimiter_index == len_words) {
+        printf("Error: delimiter not found\n");
+        free(bytes);
+        fclose(f);
+        return ERROR;
+    }
+
     size_t program_words = delimiter_index;
-    size_t data_words = (delimiter_index == len_words) ? 0 : (len_words - delimiter_index - 1);
+    size_t data_words = (len_words > delimiter_index + 4) ? (len_words - delimiter_index - 4) : 0;
 
     if (program_words * 2 > PROGRAM_MAX) {
         free(bytes);
@@ -147,12 +155,15 @@ Result load_program(VM* vm, const char* filepath) {
     memcpy(ram_bytes + PROGRAM_START, bytes, program_words * 2);
 
     if (data_words > 0) {
-        memcpy(ram_bytes + DATA_SEGMENT_START, bytes + (delimiter_index + 1) * 2, data_words * 2);
+        memcpy(ram_bytes + DATA_SEGMENT_START,
+               bytes + (delimiter_index + 4) * 2,
+               data_words * 2);
     }
 
     free(bytes);
 
-    fseek(f, (delimiter_index + 1) * 2, SEEK_SET);
+    // Move file cursor to string table start
+    fseek(f, (delimiter_index + 4) * 2, SEEK_SET);
     load_string_table(vm, f);
 
     fclose(f);
