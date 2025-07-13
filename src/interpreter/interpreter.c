@@ -187,6 +187,35 @@ void interpret_op(VM* vm, uint16_t words[4]) {
       break;
     }
 
+    case 0x55: {
+        uint16_t addr = vm->cpu.registers[words[1]].value;
+        uint16_t x = vm->cpu.registers[words[2]].value;
+        uint16_t y = vm->cpu.registers[words[3]].value;
+
+        if (x >= SCREEN_WIDTH - SPRITE_SIZE) x = SCREEN_WIDTH - SPRITE_SIZE;
+        if (y >= SCREEN_HEIGHT - SPRITE_SIZE) y = SCREEN_HEIGHT - SPRITE_SIZE;
+
+        uint8_t* mem = (uint8_t*)vm->ram.memory;
+
+        if (addr + SPRITE_SIZE > RAM_SIZE) {
+            printf("DRAW SPRITE Error: Address out of range\n");
+            vm->cpu.flags.program_interrupt = EFINISH;
+            return;
+        }
+
+        for (int row = 0; row < SPRITE_SIZE; row++) {
+            uint8_t bits = mem[addr + row];
+            for (int col = 0; col < SPRITE_SIZE; col++) {
+                if (bits & (1 << (7 - col))) {
+                    vm->vram[(y + row) * SCREEN_WIDTH + (x + col)] = 1;
+                }
+            }
+        }
+
+        vm->cpu.pc += 8;
+        break;
+    }
+
     // case 0x53: {
     //   uint16_t dst = words[1];
     //   uint16_t addr = vm->cpu.registers[words[2]].value;

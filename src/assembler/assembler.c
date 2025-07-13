@@ -190,14 +190,14 @@ static Result second_pass(DynBuffer* opcodes, LabelMap* labels, ParsedLines* pli
       regnum = atoi(toks[1]);
       if (toks[1][0] == 'R') regnum = atoi(toks[1] + 1);
       if (regnum < 0) {
-        printf("COMPILATION ERROR: LDS requires valid register\n");
+        printf("\nCOMPILATION ERROR: LDS requires valid register\n");
         return ERROR;
       }
 
       const char* bracketed = toks[2];
-      printf("\nBRACKETED: \"%s\"\n", bracketed);
+      // printf("\nBRACKETED: \"%s\"\n", bracketed);
       if (bracketed[0] != '[' || bracketed[strlen(bracketed) - 1] != ']') {
-        printf("COMPILATION ERROR: Sprite data must be in [brackets]\n");
+        printf("\nCOMPILATION ERROR: Sprite data must be in [brackets]\n");
         return ERROR;
       }
 

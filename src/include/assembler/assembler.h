@@ -58,8 +58,11 @@ typedef enum OpCode {
   LOADR     = 0x52,
   LOADB     = 0x53,
 
-  // Add sprite to VRAM at x, y
+  // Add string-sprite to VRAM at x, y
   STRB  = 0x54,
+
+  // Add custom sprite to VRAM at x, y 
+  SPRB = 0x55,
 
   // Text
   PRINT     = 0x60,
