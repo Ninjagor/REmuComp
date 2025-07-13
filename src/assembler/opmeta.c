@@ -42,6 +42,7 @@ int get_operand_count(OpCode op) {
     case LOADB: return 2;
     case DRAW:
     case INITDISPLAY: return 0;
+    case SPRB:
     case STRB: return 3;
     case CEQ:
     case CG:

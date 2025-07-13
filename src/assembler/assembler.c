@@ -6,6 +6,7 @@
 #include "utils/types.h"
 #include "utils/structs/dynbuf.h"
 #include "parser/parser.h"
+#include "assembler/sprites.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -50,8 +51,6 @@ static void write_string_table(FILE* f, StringTable* st) {
         const char* s = st->strings[i];
         size_t len = strlen(s);
         for (size_t j = 0; j <= len; j++) { 
-            // uint16_t w = (uint16_t)(uint8_t)s[j];
-            // fwrite(&w, sizeof(uint16_t), 1, f);
             uint8_t b = (uint8_t)s[j];
             fwrite(&b, sizeof(uint8_t), 1, f);
         }
@@ -83,7 +82,7 @@ static Result first_pass(LabelMap* labels, ParsedLines* plines) {
   return SUCCESS;
 }
 
-static Result second_pass(DynBuffer* opcodes, LabelMap* labels, ParsedLines* plines, StringTable* st) {
+static Result second_pass(DynBuffer* opcodes, LabelMap* labels, ParsedLines* plines, StringTable* ststrings, SpriteTable* stsprites) {
   for (size_t i = 0; i < plines->count; i++) {
     char** toks = plines->lines[i];
     if (!toks[0]) continue;
@@ -161,7 +160,7 @@ static Result second_pass(DynBuffer* opcodes, LabelMap* labels, ParsedLines* pli
         return ERROR;
       }
 
-      int idx = add_string(st, string_content);
+      int idx = add_string(ststrings, string_content);
       free(string_content);
       if (idx < 0) {
         printf("COMPILATION ERROR: Failed to add string to table\n");
@@ -170,13 +169,70 @@ static Result second_pass(DynBuffer* opcodes, LabelMap* labels, ParsedLines* pli
 
       uint16_t dest_addr = 0x0000;
       if (toks[3]) {
-        // parse the 3rd operand (dest memory address)
         dest_addr = (uint16_t)strtol(toks[3], NULL, 0);
       }
 
       appendWord(opcodes, 0x80);
       appendWord(opcodes, (uint16_t)regnum);
       appendWord(opcodes, (uint16_t)idx);
+      appendWord(opcodes, dest_addr);
+
+      continue;
+    }
+
+    if (opcode == -4) { // LDS sprite instruction
+      if (!toks[1] || !toks[2]) {
+        printf("COMPILATION ERROR: LDS requires register and sprite data\n");
+        return ERROR;
+      }
+
+      int regnum = -1;
+      regnum = atoi(toks[1]);
+      if (toks[1][0] == 'R') regnum = atoi(toks[1] + 1);
+      if (regnum < 0) {
+        printf("\nCOMPILATION ERROR: LDS requires valid register\n");
+        return ERROR;
+      }
+
+      const char* bracketed = toks[2];
+      // printf("\nBRACKETED: \"%s\"\n", bracketed);
+      if (bracketed[0] != '[' || bracketed[strlen(bracketed) - 1] != ']') {
+        printf("\nCOMPILATION ERROR: Sprite data must be in [brackets]\n");
+        return ERROR;
+      }
+
+      char* inner = strndup(bracketed + 1, strlen(bracketed) - 2);
+      if (!inner) return ERROR;
+
+      uint8_t sprite[8] = {0};
+      int filled = 0;
+      char* tok = strtok(inner, " ");
+      while (tok && filled < 8) {
+        uint16_t val = (uint16_t)strtol(tok, NULL, 0);
+        sprite[filled++] = (uint8_t)(val & 0xFF);
+        tok = strtok(NULL, " ");
+      }
+      free(inner);
+
+      if (filled != 8) {
+        printf("COMPILATION ERROR: Sprite must have exactly 8 bytes\n");
+        return ERROR;
+      }
+
+      int sprite_idx = add_sprite(stsprites, sprite);
+      if (sprite_idx < 0) {
+        printf("COMPILATION ERROR: Failed to add sprite\n");
+        return ERROR;
+      }
+
+      uint16_t dest_addr = 0x0000;
+      if (toks[3]) {
+        dest_addr = (uint16_t)strtol(toks[3], NULL, 0);
+      }
+
+      appendWord(opcodes, 0x83);
+      appendWord(opcodes, (uint16_t)regnum);
+      appendWord(opcodes, (uint16_t)sprite_idx);
       appendWord(opcodes, dest_addr);
 
       continue;
@@ -289,8 +345,11 @@ Result assemble(const char* filepath) {
   StringTable strtable;
   init_string_table(&strtable);
 
+  SpriteTable stsprites;
+  init_sprite_table(&stsprites);
+
   Result res = first_pass(&labels, &plines);
-  if (res == SUCCESS) res = second_pass(&opcodes, &labels, &plines, &strtable);
+  if (res == SUCCESS) res = second_pass(&opcodes, &labels, &plines, &strtable, &stsprites);
 
   free_label_map(&labels);
   free_parsed_lines(&plines);
@@ -302,6 +361,7 @@ Result assemble(const char* filepath) {
   if (res == ERROR) {
     freeBuffer(&opcodes);
     free_string_table(&strtable);
+    free_sprite_table(&stsprites);
     return ERROR;
   }
 
@@ -310,6 +370,7 @@ Result assemble(const char* filepath) {
     printf("\nINVALID FILE out/a.bin\n");
     freeBuffer(&opcodes);
     free_string_table(&strtable);
+    free_sprite_table(&stsprites);
     return ERROR;
   }
 
@@ -324,9 +385,6 @@ Result assemble(const char* filepath) {
 
   fwrite(opcodes.data, sizeof(uint16_t), opcodes.size, f);
 
-  // uint16_t delimiter = 0xFFFF;
-  // fwrite(&delimiter, sizeof(uint16_t), 1, f);
-
   uint16_t delim = 0xFFFF;
   for (int i = 0; i < 4; i++) {
       fwrite(&delim, sizeof(uint16_t), 1, f);
@@ -334,10 +392,17 @@ Result assemble(const char* filepath) {
 
   write_string_table(f, &strtable);
 
+  for (int i = 0; i < 4; i++) {
+      fwrite(&delim, sizeof(uint16_t), 1, f);
+  }
+
+  write_sprite_table(f, &stsprites);
+
   fclose(f);
 
   freeBuffer(&opcodes);
   free_string_table(&strtable);
+  free_sprite_table(&stsprites);
 
   return SUCCESS;
 }

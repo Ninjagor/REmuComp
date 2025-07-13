@@ -187,6 +187,35 @@ void interpret_op(VM* vm, uint16_t words[4]) {
       break;
     }
 
+    case 0x55: {
+        uint16_t addr = vm->cpu.registers[words[1]].value;
+        uint16_t x = vm->cpu.registers[words[2]].value;
+        uint16_t y = vm->cpu.registers[words[3]].value;
+
+        if (x >= SCREEN_WIDTH - SPRITE_SIZE) x = SCREEN_WIDTH - SPRITE_SIZE;
+        if (y >= SCREEN_HEIGHT - SPRITE_SIZE) y = SCREEN_HEIGHT - SPRITE_SIZE;
+
+        uint8_t* mem = (uint8_t*)vm->ram.memory;
+
+        if (addr + SPRITE_SIZE > RAM_SIZE) {
+            printf("DRAW SPRITE Error: Address out of range\n");
+            vm->cpu.flags.program_interrupt = EFINISH;
+            return;
+        }
+
+        for (int row = 0; row < SPRITE_SIZE; row++) {
+            uint8_t bits = mem[addr + row];
+            for (int col = 0; col < SPRITE_SIZE; col++) {
+                if (bits & (1 << (7 - col))) {
+                    vm->vram[(y + row) * SCREEN_WIDTH + (x + col)] = 1;
+                }
+            }
+        }
+
+        vm->cpu.pc += 8;
+        break;
+    }
+
     // case 0x53: {
     //   uint16_t dst = words[1];
     //   uint16_t addr = vm->cpu.registers[words[2]].value;
@@ -285,6 +314,43 @@ void interpret_op(VM* vm, uint16_t words[4]) {
       memset(&((uint8_t*)vm->ram.memory)[addr], 0, len);
       vm->cpu.pc += 8;
       break;
+    }
+
+    // LDS
+    case 0x83: {
+        uint16_t reg = words[1], idx = words[2], addr = words[3];
+        const uint8_t* sprite = get_sprite_from_vm(vm, idx);
+
+        if (!sprite || addr + SPRITE_SIZE > RAM_SIZE) {
+            printf("\nLDS idx=%u, addr=%u, sprite_count=%zu\n", idx, addr, vm->sprite_count);
+            printf("LDS Error\n");
+            vm->cpu.flags.program_interrupt = EFINISH;
+            return;
+        } else {
+
+            uint8_t* ram_bytes = (uint8_t*)vm->ram.memory;
+            for (int i = 0; i < SPRITE_SIZE; i++) {
+                ram_bytes[addr + i] = sprite[i];
+            }
+
+            if (reg < CPU_REGISTER_COUNT) {
+                vm->cpu.registers[reg].value = addr;
+            } else {
+                printf("LDS Error: invalid register %u\n", reg);
+                vm->cpu.flags.program_interrupt = EFINISH;
+                return;
+            }
+
+// printf("Sprite loaded to RAM at address 0x%04X:\n", addr);
+    // for (int i = 0; i < SPRITE_SIZE; i++) {
+        // printf("%02X ", ram_bytes[addr + i]);
+    // }
+    // printf("\n");
+        }
+
+
+        vm->cpu.pc += 8;
+        break;
     }
 
     case 0x90:
