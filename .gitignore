@@ -12,3 +12,5 @@ out/*
 
 ./compile_commands.json
 compile_commands.json
+
+.DS_STORE
