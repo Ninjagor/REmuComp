@@ -255,7 +255,7 @@ void interpret_op(VM* vm, uint16_t words[4]) {
           vm->cpu.flags.program_interrupt = EFINISH;
           return;
       }
-      printf("\nADDR VALUE: %lu\n", addr+strlen(str));
+      // printf("\nADDR VALUE: %lu\n", addr+strlen(str));
       if (addr + strlen(str) >= RAM_SIZE) {
         printf("STRS Error\n");
         vm->cpu.flags.program_interrupt = EFINISH;

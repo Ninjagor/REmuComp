@@ -6,6 +6,7 @@ int get_operand_count(OpCode op) {
     case MOVI: return 2;
     case MOVR: return 2;
     case ADD:
+    case MOD:
     case SUB:
     case AND:
     case MUL:
