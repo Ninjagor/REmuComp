@@ -270,7 +270,7 @@ Result load_program(VM* vm, const char* filepath) {
         uint16_t w3 = bytes[(i + 3) * 2] | (bytes[(i + 3) * 2 + 1] << 8);
 
         if (w0 == 0xFFFF && w1 == 0xFFFF && w2 == 0xFFFF && w3 == 0xFFFF) {
-            sprite_start = i * 2 + 8; // byte offset after second delimiter
+            sprite_start = (i + 4) * 2;  // Corrected
             break;
         }
     }
@@ -286,99 +286,27 @@ Result load_program(VM* vm, const char* filepath) {
     fseek(f, string_start, SEEK_SET);
     load_string_table(vm, f);
 
-    // Debug sprites from file starting at sprite_start
-    fseek(f, sprite_start, SEEK_SET);
-    load_sprite_table_debug(f);
+    // Debug and load sprite table
+    // fseek(f, sprite_start, SEEK_SET);
+    // load_sprite_table_debug(f);
 
-    // Load sprite table
     fseek(f, sprite_start, SEEK_SET);
     load_sprite_table(vm, f);
 
     free(bytes);
     fclose(f);
-
     return SUCCESS;
 }
 
 
-// Result load_program(VM* vm, const char* filepath) {
-//     FILE* f = fopen(filepath, "rb");
-//     if (!f) return ERROR;
-//
-//     fseek(f, 0, SEEK_END);
-//     size_t file_size = ftell(f);
-//     rewind(f);
-//
-//     uint8_t* bytes = malloc(file_size);
-//     if (!bytes) {
-//         fclose(f);
-//         return ERROR;
-//     }
-//
-//     if (fread(bytes, 1, file_size, f) != file_size) {
-//         free(bytes);
-//         fclose(f);
-//         return ERROR;
-//     }
-//
-//     size_t len_words = file_size / 2;
-//     size_t delimiter_index = len_words;
-//
-//     for (size_t i = 0; i < len_words - 3; i++) {
-//         uint16_t w0 = bytes[i * 2] | (bytes[i * 2 + 1] << 8);
-//         uint16_t w1 = bytes[(i + 1) * 2] | (bytes[(i + 1) * 2 + 1] << 8);
-//         uint16_t w2 = bytes[(i + 2) * 2] | (bytes[(i + 2) * 2 + 1] << 8);
-//         uint16_t w3 = bytes[(i + 3) * 2] | (bytes[(i + 3) * 2 + 1] << 8);
-//
-//         if (w0 == 0xFFFF && w1 == 0xFFFF && w2 == 0xFFFF && w3 == 0xFFFF) {
-//             delimiter_index = i;
-//             break;
-//         }
-//     }
-//
-//     if (delimiter_index == len_words) {
-//         printf("Error: delimiter not found\n");
-//         free(bytes);
-//         fclose(f);
-//         return ERROR;
-//     }
-//
-//     size_t program_bytes = delimiter_index * 2;
-//     size_t data_bytes = (file_size > program_bytes + 8) ? (file_size - program_bytes - 8) : 0;
-//
-//     if (program_bytes > PROGRAM_MAX) {
-//         free(bytes);
-//         fclose(f);
-//         return ERROR;
-//     }
-//
-//     uint8_t* ram_bytes = (uint8_t*)vm->ram.memory;
-//
-//     memcpy(ram_bytes + PROGRAM_START, bytes, program_bytes);
-//
-//     if (data_bytes > 0) {
-//         memcpy(ram_bytes + DATA_SEGMENT_START,
-//                bytes + program_bytes + 8,
-//                data_bytes);
-//     }
-//
-//     // Move file cursor to string table start
-//     fseek(f, program_bytes + 8, SEEK_SET);
-//     load_string_table(vm, f);
-//
-//     load_sprite_table_debug(f);
-//
-//     free(bytes);
-//     fclose(f);
-//
-//     return SUCCESS;
-// }
-
-
 Result run_program(VM* vm) {
     const useconds_t delay_us = 1000000 / VM_OPS_PER_SECOND;
+    int timer_tick_counter = 0;
+    const int ticks_per_timer_decrement = VM_OPS_PER_SECOND / 60;
 
     while (true) {
+        timer_tick_counter++;
+
         InterruptFlag interrupt = vm->cpu.flags.program_interrupt;
         if (interrupt != RUNNING) {
             if (interrupt == EFINISH) {
@@ -419,6 +347,19 @@ Result run_program(VM* vm) {
           }
           render(vm);
           vm->cpu.flags.draw_flag = 0;
+        }
+
+
+        if (timer_tick_counter >= ticks_per_timer_decrement) {
+            timer_tick_counter = 0;
+
+            if (vm->cpu.flags.delay_timer > 0) vm->cpu.flags.delay_timer--;
+            if (vm->cpu.flags.sound_timer > 0) {
+                vm->cpu.flags.sound_timer--;
+                if (vm->cpu.flags.sound_timer == 0) {
+                    // stop_beep();
+                }
+            }
         }
 
         //

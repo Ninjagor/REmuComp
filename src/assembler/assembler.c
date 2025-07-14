@@ -46,14 +46,34 @@ static void free_string_table(StringTable* st) {
     st->capacity = 0;
 }
 
+// static void write_string_table(FILE* f, StringTable* st) {
+//     for (size_t i = 0; i < st->count; i++) {
+//         const char* s = st->strings[i];
+//         size_t len = strlen(s);
+//         for (size_t j = 0; j <= len; j++) { 
+//             uint8_t b = (uint8_t)s[j];
+//             fwrite(&b, sizeof(uint8_t), 1, f);
+//         }
+//     }
+// }
+
 static void write_string_table(FILE* f, StringTable* st) {
+    size_t total_written = 0;
+
     for (size_t i = 0; i < st->count; i++) {
         const char* s = st->strings[i];
         size_t len = strlen(s);
-        for (size_t j = 0; j <= len; j++) { 
+        for (size_t j = 0; j <= len; j++) {
             uint8_t b = (uint8_t)s[j];
             fwrite(&b, sizeof(uint8_t), 1, f);
+            total_written++;
         }
+    }
+
+    // Align to 2-byte boundary
+    if (total_written % 2 != 0) {
+        uint8_t pad = 0x00;
+        fwrite(&pad, 1, 1, f);
     }
 }
 

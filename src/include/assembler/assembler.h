@@ -78,6 +78,18 @@ typedef enum OpCode {
 
   // Read key input
   RDI = 0x74,
+
+  // SET delay timer
+  STD = 0x75,
+  STDI = 0x76,
+
+  // READ delay timer
+  RTD = 0x77,
+
+  // SET sound timer
+  STS = 0x78,
+  STSI = 0x79,
+
   
 
   // MEMORY

@@ -51,6 +51,11 @@ int get_operand_count(OpCode op) {
     case CGE:
     case CL:
     case CLE:
+    case STD:
+    case STDI:
+    case RTD:
+    case STS:
+    case STSI:
     case CNE: return 1;
     default: return -1;
   }

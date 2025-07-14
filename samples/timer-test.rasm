@@ -1,0 +1,5 @@
+_START
+  STRS R0, "RE", 0xE001
+  ; STRS R6, "VM", 0xE100
+
+  HALT

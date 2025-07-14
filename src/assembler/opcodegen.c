@@ -45,24 +45,23 @@ OpCode get_opcode_from_str(const char* instr) {
     if (strcmp(instr, "LOADB") == 0) return LOADB;
     if (strcmp(instr, "PRINT") == 0) return PRINT;
     // if (strcmp(instr, "PUTC") == 0) return PUTC;
-
     if (strcmp(instr, "DRAW") == 0) return DRAW;
     if (strcmp(instr, "INITDISPLAY") == 0) return INITDISPLAY;
-
     if (strcmp(instr, "STRB") == 0) return STRB;
-
     if (strcmp(instr, "CLS") == 0) return CLS;
-
     if (strcmp(instr, "ALLOWMOD") == 0) return ENABLESMOD;
     if (strcmp(instr, "DISABLEMOD") == 0) return DISABLESMOD;
-  
     if (strcmp(instr, "SPRB") == 0) return SPRB;
-
     if (strcmp(instr, "CLSM") == 0) return CLSM;
-
-
     if (strcmp(instr, "POLL") == 0) return POLL;
     if (strcmp(instr, "RDI") == 0) return RDI;
+
+    if (strcmp(instr, "STD") == 0) return STD;
+    if (strcmp(instr, "STDI") == 0) return STDI;
+    if (strcmp(instr, "RTD") == 0) return RTD;
+    if (strcmp(instr, "STS") == 0) return STS;
+    if (strcmp(instr, "STSI") == 0) return STSI;
+
 
     if (strcmp(instr, "DSTR") == 0) return -3;
     if (strcmp(instr, "STRS") == 0) return -2;

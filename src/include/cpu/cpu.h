@@ -45,6 +45,8 @@ typedef struct Flags {
   int input_poll_flag; // 0-1
 
   bool keys[16];
+  int delay_timer;
+  int sound_timer;
 } Flags;
 
 typedef struct CPU {

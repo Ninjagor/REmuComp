@@ -250,7 +250,13 @@ void interpret_op(VM* vm, uint16_t words[4]) {
     case 0x80: {
       uint16_t reg = words[1], idx = words[2], addr = words[3];
       const char* str = get_string_from_vm(vm, idx);
-      if (!str || addr + strlen(str) >= RAM_SIZE) {
+      if (!str) {
+          printf("STRS Error: NULL string\n");
+          vm->cpu.flags.program_interrupt = EFINISH;
+          return;
+      }
+      printf("\nADDR VALUE: %lu\n", addr+strlen(str));
+      if (addr + strlen(str) >= RAM_SIZE) {
         printf("STRS Error\n");
         vm->cpu.flags.program_interrupt = EFINISH;
         return;
@@ -314,6 +320,46 @@ void interpret_op(VM* vm, uint16_t words[4]) {
     case 0x74: {
       uint16_t reg1_id = words[1], input_type = words[2];
       vm->cpu.registers[reg1_id].value = vm->cpu.flags.keys[input_type] ? 0x0001 : 0x0000;
+      vm->cpu.pc += 8;
+      break;
+    }
+
+    case 0x75: {
+      uint16_t time = vm->cpu.registers[words[1]].value;
+
+      vm->cpu.flags.delay_timer = time;
+      vm->cpu.pc += 8;
+      break;
+    }
+
+    case 0x76: {
+      uint16_t time = words[1];
+
+      vm->cpu.flags.delay_timer = time;
+      vm->cpu.pc += 8;
+      break;
+    }
+
+    case 0x77: {
+      uint16_t reg_id = words[1];
+
+      vm->cpu.registers[reg_id].value = vm->cpu.flags.delay_timer;
+      vm->cpu.pc += 8;
+      break;
+    }
+
+    case 0x78: {
+      uint16_t time = vm->cpu.registers[words[1]].value;
+
+      vm->cpu.flags.sound_timer = time;
+      vm->cpu.pc += 8;
+      break;
+    }
+
+    case 0x79: {
+      uint16_t time = words[1];
+
+      vm->cpu.flags.sound_timer = time;
       vm->cpu.pc += 8;
       break;
     }
