@@ -1,5 +1,8 @@
 #include "assembler/assembler.h"
+#include "main.h"
+#include "utils/types.h"
 #include "vm/vm.h"
+#include <signal.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
@@ -45,12 +48,13 @@ int cli_main(int argc, char* argv[]) {
             }
         }
 
-        int res = assemble(filepath);
+        int res = assemble(filepath, quiet, verbose);
         if (res != 0) {
             if (!quiet) printf("Build failed\n");
             return res;
         }
-        if (!quiet) printf("Build succeeded\n");
+        if (!quiet) printf("Build succeeded:\n");
+        if (!quiet) printf("out/a.bin\n");
         // If verbose, you can add code here to print the binary output.
         return 0;
 
@@ -89,7 +93,14 @@ int cli_main(int argc, char* argv[]) {
 
       Result r = run_program(&vm);
 
-      printf("============================\n");
+      if (r == ERROR) {
+        set_error_exit_flag(true);
+        // throw an error sigint to print a diff msg
+      } else {
+        set_error_exit_flag(false);
+      }
+
+      // printf("============================\n");
 
       if (debug) {
         printf("\nCPU Register Peek: \n");
@@ -107,6 +118,8 @@ int cli_main(int argc, char* argv[]) {
 
     
       cleanup_vm(&vm);
+
+      raise(SIGINT);
 
       return 0;
 

@@ -310,9 +310,11 @@ Result run_program(VM* vm) {
         InterruptFlag interrupt = vm->cpu.flags.program_interrupt;
         if (interrupt != RUNNING) {
             if (interrupt == EFINISH) {
-                printf("\nREmu VM Exited with an error.\n");
+                // printf("\nREmu VM Exited with an error.\n");
+                return ERROR;
             } else if (interrupt == SFINISH) {
-                printf("\nREmu VM Exited successfully.\n");
+                // printf("\nREmu VM Exited successfully.\n");
+                return SUCCESS;
             }
             break;
         }

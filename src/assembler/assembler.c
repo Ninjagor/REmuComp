@@ -332,12 +332,17 @@ static Result second_pass(DynBuffer* opcodes, LabelMap* labels, ParsedLines* pli
   return SUCCESS;
 }
 
-Result assemble(const char* filepath) {
+Result assemble(const char* filepath, bool isQuiet, bool isVerbose) {
   char* raw_code = read_file_to_string(filepath);
   if (!raw_code) return ERROR;
 
   const char* preamble = "JMP _START\n";
   size_t total_len = strlen(preamble) + strlen(raw_code) + 1;
+
+  if (!isQuiet) {
+    printf("Running codemods...\n");
+  }
+
   char* modified_code = malloc(total_len);
   if (!modified_code) {
     free(raw_code);
@@ -355,18 +360,41 @@ Result assemble(const char* filepath) {
     return ERROR;
   }
 
+  if (!isQuiet) {
+    printf("Parsing...\n");
+  }
+
   ParsedLines plines = parse_all_lines(lines, line_count);
+
+
+  if (!isQuiet) {
+    printf("Mapping labels...\n");
+  }
 
   LabelMap labels;
   init_label_map(&labels);
   DynBuffer opcodes;
   initBuffer(&opcodes, 16);
 
+
+  if (!isQuiet) {
+    printf("Generating static string table...\n");
+  }
+
   StringTable strtable;
   init_string_table(&strtable);
 
+
+  if (!isQuiet) {
+    printf("Encoding sprites...\n");
+  }
+
   SpriteTable stsprites;
   init_sprite_table(&stsprites);
+
+  if (!isQuiet) {
+    printf("Linking labels...\n");
+  }
 
   Result res = first_pass(&labels, &plines);
   if (res == SUCCESS) res = second_pass(&opcodes, &labels, &plines, &strtable, &stsprites);
@@ -394,14 +422,20 @@ Result assemble(const char* filepath) {
     return ERROR;
   }
 
-  for (size_t i = 0; i < opcodes.size; i++) {
-      if (i % 4 == 0) {
-          printf("\n"); // new instruction
-      }
-      printf("0x%04X ", opcodes.data[i]);
+  if (isVerbose) {
+    printf("\nAssembled bytes:");
+    for (size_t i = 0; i < opcodes.size; i++) {
+        if (i % 4 == 0) {
+            printf("\n"); // new instruction
+        }
+        printf("0x%04X ", opcodes.data[i]);
+    }
   }
-  printf("\n\nCompiled: %zu Bytes\n", opcodes.size);
-  printf("\n");
+
+  if (!isQuiet) {
+    printf("\n\nCompiled: %zu Bytes\n", opcodes.size);
+  // printf("\n");
+  }
 
   fwrite(opcodes.data, sizeof(uint16_t), opcodes.size, f);
 

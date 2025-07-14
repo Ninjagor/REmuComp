@@ -2,6 +2,7 @@
 #define ASSEMBLER_H
 
 #include "utils/types.h"
+#include <stdbool.h>
 #include <stddef.h>
 
 typedef enum OpCode {
@@ -106,6 +107,6 @@ typedef struct {
   size_t capacity;
 } StringTable;
 
-Result assemble(const char* filepath);
+Result assemble(const char* filepath, bool isQuiet, bool isVerbose);
 
 #endif
