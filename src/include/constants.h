@@ -33,7 +33,7 @@
 
 
 /** CPU RELATED STUFF **/
-#define CPU_REGISTER_COUNT 16
+#define CPU_REGISTER_COUNT 32
 // const int CPU_REGISTER_COUNT = 15;
 
 

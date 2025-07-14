@@ -421,6 +421,20 @@ Result run_program(VM* vm) {
           vm->cpu.flags.draw_flag = 0;
         }
 
+        //
+        // printf("\033[2J");
+        //
+        // printf("\nCPU Register Peek: \n");
+        // for (int i = 0; i < CPU_REGISTER_COUNT; i++) {
+        //   char* p = "";
+        //   if (i < 10) {
+        //     p = "0";
+        //   }
+        //   printf("R%s%i 0x%04X ", p, i, vm->cpu.registers[i].value);
+        //   if ((i+1)%4 == 0) {
+        //     printf("\n");
+        //   }
+        // }
 
         interpret_op(vm, words);
 
