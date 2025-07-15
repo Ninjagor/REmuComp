@@ -33,7 +33,7 @@ _DRAW
 
   DRAW
 
-  RDI R15, #0x0001               ; Get state of '1' key
+  RDI R15, #0x0000               ; Get state of '1' key
   CMP R15, R8
   CEQ _CHECK_RIGHT_BOUNDARY
 
@@ -105,6 +105,10 @@ _SETUP
   ; Char Set
   STRS R0, "REMU", 0xE010
   STRS R5, " VM ", 0xE020
+
+  STRS R20, "Press '1' on your keyboard to move the text", 0xEF00
+
+  PRINT R20, 1
 
   ; Set the mem start
   MOVR R3, R0

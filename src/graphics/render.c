@@ -34,28 +34,33 @@ static Font retroFont;
 
 void poll_keys(VM* vm) {
     for (int i = 0; i < 16; i++) vm->cpu.flags.keys[i] = false;
-    if (IsKeyDown(KEY_ONE))   vm->cpu.flags.keys[0x1] = true;
-    if (IsKeyDown(KEY_TWO))   vm->cpu.flags.keys[0x2] = true;
-    if (IsKeyDown(KEY_THREE)) vm->cpu.flags.keys[0x3] = true;
-    if (IsKeyDown(KEY_C))     vm->cpu.flags.keys[0xC] = true;
-    if (IsKeyDown(KEY_FOUR))  vm->cpu.flags.keys[0x4] = true;
-    if (IsKeyDown(KEY_FIVE))  vm->cpu.flags.keys[0x5] = true;
-    if (IsKeyDown(KEY_SIX))   vm->cpu.flags.keys[0x6] = true;
-    if (IsKeyDown(KEY_D))     vm->cpu.flags.keys[0xD] = true;
-    if (IsKeyDown(KEY_SEVEN)) vm->cpu.flags.keys[0x7] = true;
-    if (IsKeyDown(KEY_EIGHT)) vm->cpu.flags.keys[0x8] = true;
-    if (IsKeyDown(KEY_NINE))  vm->cpu.flags.keys[0x9] = true;
-    if (IsKeyDown(KEY_E))     vm->cpu.flags.keys[0xE] = true;
-    if (IsKeyDown(KEY_A))     vm->cpu.flags.keys[0xA] = true;
-    if (IsKeyDown(KEY_ZERO))  vm->cpu.flags.keys[0x0] = true;
-    if (IsKeyDown(KEY_B))     vm->cpu.flags.keys[0xB] = true;
-    if (IsKeyDown(KEY_F))     vm->cpu.flags.keys[0xF] = true;
+
+    if (IsKeyDown(KEY_ONE))   vm->cpu.flags.keys[0x0] = true;
+    if (IsKeyDown(KEY_TWO))   vm->cpu.flags.keys[0x1] = true;
+    if (IsKeyDown(KEY_THREE)) vm->cpu.flags.keys[0x2] = true;
+    if (IsKeyDown(KEY_FOUR))  vm->cpu.flags.keys[0x3] = true;
+
+    if (IsKeyDown(KEY_Q))     vm->cpu.flags.keys[0x4] = true;
+    if (IsKeyDown(KEY_W))     vm->cpu.flags.keys[0x5] = true;
+    if (IsKeyDown(KEY_E))     vm->cpu.flags.keys[0x6] = true;
+    if (IsKeyDown(KEY_R))     vm->cpu.flags.keys[0x7] = true;
+
+    if (IsKeyDown(KEY_A))     vm->cpu.flags.keys[0x8] = true;
+    if (IsKeyDown(KEY_S))     vm->cpu.flags.keys[0x9] = true;
+    if (IsKeyDown(KEY_D))     vm->cpu.flags.keys[0xA] = true;
+    if (IsKeyDown(KEY_F))     vm->cpu.flags.keys[0xB] = true;
+
+    if (IsKeyDown(KEY_Z))     vm->cpu.flags.keys[0xC] = true;
+    if (IsKeyDown(KEY_X))     vm->cpu.flags.keys[0xD] = true;
+    if (IsKeyDown(KEY_C))     vm->cpu.flags.keys[0xE] = true;
+    if (IsKeyDown(KEY_V))     vm->cpu.flags.keys[0xF] = true;
 }
 
 void init_display(void) {
     SetTraceLogLevel(LOG_NONE);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "REmu - VM");
 
+    // Load embedded Chicago font from memory at 32px base size
     retroFont = LoadFontFromMemory(".ttf", ChicagoFLF_ttf, ChicagoFLF_ttf_len, 32, 0, 0);
 }
 
@@ -76,6 +81,7 @@ void render(VM* vm) {
 
     ClearBackground(APP_BG);
 
+    // Title centered with shadow using retroFont
     const char* title = "REmu VM";
     int fontSize = 32;
     int titleWidth = MeasureTextEx(retroFont, title, fontSize, 1).x;
