@@ -25,7 +25,9 @@
 # Overview
 REmuVM is an emulated virtual machine. It has the the ability to address up to 64 kibabytes or RAM via a 16 bit address bus, and the amount of RAM can be configured based on required usage. By default, REmuVM's RAM comes as 64KB, partitioned in segments.
 
-## Default REmuVM Memory Map (64 KB RAM)
+## **REmuVM Specs and Configuration**
+
+### Default REmuVM Memory Map (64 KB RAM)
 
 | Segment         | Start Addr | End Addr | Size   | Description              |
 |-----------------|------------|----------|--------|--------------------------|
@@ -82,7 +84,7 @@ REmuVM has a clock speed of 1000hz (0.001 MHz). This means it runs 1000 ops/sec.
 
 ## Program running process
 ### RASM
-REmuVM supports a custom turing complete assembly language called RASM. RASM is a simple assembly-like language which is meant to be easy for beginners to learn. Here is an example RASM program that prints "Hello World" to the standard outpu of the REmuVM.
+REmuVM supports a custom turing complete assembly language called RASM. RASM is a simple assembly-like language which is meant to be easy for beginners to learn. Here is an example RASM program that prints "Hello World" to the standard output of the REmuVM.
 ```
 _START
     STRS R0, "Hello World!", 0xE000
@@ -110,7 +112,30 @@ Below are the basic stages that a program goes through when running on a REmuVM.
 - Strings and sprites, which were seperated from the main program code using a `4x 0xFFFF` delimeter, by the assembler, are parsed and loaded onto the RAM lazily (when they are needed).
 
 4.) **Interpreter**
-- Each instruction is recieved coded into 8-byte instructions. For example: `0x0001 0x0002 0xFE02 0x0000`, which loads the value `0xFE02` into CPU register `R2`.
+- Each instruction is recieved as 8-byte instructions. For example: `0x0001 0x0002 0xFE02 0x0000`, which loads the value `0xFE02` into CPU register `R2`, and is equivalent to the RASM `MOVI R2, 0xFE02`.
 - The CPU maintains a program counter (`pc`) which tracks the intepreter's current "location" that it's interpreting in the RAM. 
 - The interpreter reads through these 8 byte instructions and executes actions. On instructions like `JMP`, it moves the `pc` to the RAM address specified by `JMP`, which enables program control flow.
 
+# Installation and Usage
+Currently, REmuVM is supported and tested on MacOS, and has the compatibility to work on Linux (with some Makefile tweaks). Windows is not currently supported. Requirements:
+- Clang/GCC
+- Raylib
+
+Clang can be swapped out for GCC if needed, by editing the Makefile. Similarly, those on linux must update the Makefile with the correct raylib location prior to building. On macos, raylib is required to be downloaded via homebrew before building.
+
+To install REmuVm, clone the github repo and run `make`. This will output the build to `bin/main`.
+
+```bash
+git clone https://github.com/Ninjagor/REmuVM.git
+cd REmuVM
+make
+```
+
+In order to build/compile a rasm project, run:
+```bash
+./bin/main build (PATH_TO_RASM_FILE) -o (OUTPUT_DIR)
+```
+And to run the assembled bytecode, run:
+```bash
+./bin/main run (PATH_TO_BYTECODE)
+```

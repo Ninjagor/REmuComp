@@ -22,7 +22,7 @@ fn cfg() -> structs::Configs {
     use structs::Configs;
     let config = Configs {
         bin_path: String::from("/Users/rohit/rohit-project-work/remucomp/bin/main"),
-        file_path: String::from("/Users/rohit/rohit-project-work/remucomp/samples/ide-test.rasm"),
+        file_path: String::from("/Users/rohit/rohit-project-work/remucomp/samples/dino-game.rasm"),
     };
 
     config

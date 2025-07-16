@@ -1,0 +1,205 @@
+_START
+    INITDISPLAY
+    CALL _SETUP
+    JMP _DRAW
+    HALT
+
+_SETUP
+    ; set display timer to 0x0020
+    STDI 0x0300
+
+    ; -- Register Setup -- ;
+    MOVI R0, 0x0000 ; value 0
+    MOVI R1, 0x0001 ; value 1
+    
+    LDS R2 [0x18, 0x3C, 0x3C, 0x18, 0x24, 0x24, 0x42, 0x00] 0xE000 ; player sprite
+    LDS R3, [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF] 0xE008 ; obstacle char "T"
+    LDS R15 [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF] 0xE018 ; floor sprite
+
+    MOVI R4, 0x0001 ; Gravity value
+    MOVI R5, 0x0020 ; X value
+    MOVI R6, 0x0010 ; Y value
+    MOVI R7, 0x0000 ; Y-velocity
+    MOVI R9, 0x0003 ; Max y-vel
+    MOVI R10, 0x0025 ; floor value
+    MOVI R11, 0x00014 ; ceiling value
+
+    MOVI R13, 0x0000 ; Ready-to-jump value
+
+    MOVI R17, 0x0060 ; Obstacle x
+    MOVI R18, 0x0025 ; Obstacle y
+
+    MOVI R20, 0x0003 
+
+    MOVI R31, 0x0000 ; gameover status
+
+    RET
+
+_SPEED_UP
+    MOVI R9, 0x0005
+    MOVI R20, 0x0005
+    RET
+
+; subroutine to modify vram
+_RENDER
+    SPRB R2, R5, R6
+    
+    MOVI R16, 0x0000
+    ADD R16, R16, R10
+    MOVI R1, 0x0002
+    ADD R16, R16, R1
+    MOVI R1, 0x0001
+
+    CALL _RENDER_FLOOR
+
+    RDI R8, 0x0000 ; look for press from the "1" key
+
+    ADD R7, R7, R4
+
+    CMP R7, R9
+    CG _CAP_YVEL
+
+    CMP R6, R10
+    CGE _STOP_YVEL
+
+    ADD R6, R6 ,R7
+
+    CMP R8, R1
+    CEQ _PLAYER_JUMP
+
+    CALL _RENDER_OBSTACLE
+    SUB R17, R17, R20
+
+    RTD R21
+    CMP R21, R0
+    CLE _SPEED_UP
+
+    MOVI R1, 0x0023
+    CMP R1, R17
+    MOVI R1, 0x0000
+    CGE _CHECK1
+
+    RET
+
+  _CHECK1
+    MOVI R1, 0x0025
+    CMP R6, R1
+    MOVI R1, 0x0000
+    CGE _COLLISION
+    RET
+
+_COLLISION
+    MOVI R31, 0x0001
+    RET
+
+_GAMEOVER
+    LDS R10 [0x3C, 0x42, 0xA5, 0x81, 0x99, 0xA5, 0x42, 0x3C] 0xE000 ;
+
+    MOVI R5, 0x02C
+    MOVI R6, 0x019
+    SPRB R10, R5, R6
+
+    RET
+
+
+_RENDER_OBSTACLE
+    SPRB R3, R17, R18
+    MOVI R1, 0x0010
+    CMP R17, R1
+    MOVI R1, 0x0001
+    CLE _RESET_OBSTACLE
+    RET
+
+_RESET_OBSTACLE
+    MOVI R17, 0x0060
+    RET
+
+
+_STOP_YVEL
+    MOVI R13, 0x0001
+    MOVI R7, 0x0000
+    RET
+
+_CAP_YVEL
+    MOVI R7, 0x0001
+    RET
+
+_PLAYER_JUMP
+    CMP R13, R1
+    CEQ _PJUMP
+    RET
+
+_PJUMP
+    CMP R6, R11
+    CG _EXEC_PLAYER_JMP
+    CMP R11, R6
+    CGE _DISABLE_JMP
+    RET
+
+_DISABLE_JMP
+    MOVI R13, 0x0000
+    RET
+
+_EXEC_PLAYER_JMP
+    MOVI R1, 0x0005
+    SUB R6, R6, R1
+    MOVI R1, 0x0001
+    MOVI R7, 0x0000
+    RET
+
+_DRAW
+    POLL ; input-poll
+    CLS ; clear screen
+
+    MOVI R1, 0x0001
+    CMP R31, R1
+    CEQ _GAMEOVER
+    CNE _RENDER
+
+    DRAW ; draw
+    JMP _DRAW
+    HALT
+
+
+_RENDER_FLOOR
+    MOVI R1, 0x0000
+    SPRB R15, R1, R16
+
+    MOVI R1, 0x0008
+    SPRB R15, R1, R16
+
+    MOVI R1, 0x0010
+    SPRB R15, R1, R16
+
+    MOVI R1, 0x0018
+    SPRB R15, R1, R16
+
+    MOVI R1, 0x0020
+    SPRB R15, R1, R16
+
+    MOVI R1, 0x0028
+    SPRB R15, R1, R16
+
+    MOVI R1, 0x0030
+    SPRB R15, R1, R16
+
+    MOVI R1, 0x0038
+    SPRB R15, R1, R16
+
+    MOVI R1, 0x0040
+    SPRB R15, R1, R16
+
+    MOVI R1, 0x0048
+    SPRB R15, R1, R16
+
+    MOVI R1, 0x0050
+    SPRB R15, R1, R16
+
+    MOVI R1, 0x0058
+    SPRB R15, R1, R16
+
+    MOVI R1, 0x0060
+    SPRB R15, R1, R16
+
+    MOVI R1, 0x0001
+    RET
