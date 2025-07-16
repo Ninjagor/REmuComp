@@ -1,10 +1,22 @@
 pub mod structs;
 
-use std::fs;
 use std::io::{BufRead, BufReader};
+use std::path::PathBuf;
 use std::process::Command;
+use std::{env, fs};
 use tauri::Emitter;
 use tauri::{State, Window};
+
+fn expand_tilde(path: &str) -> String {
+    if path.starts_with("~/") {
+        if let Some(home) = env::var_os("HOME") {
+            let mut pb = PathBuf::from(home);
+            pb.push(&path[2..]);
+            return pb.to_string_lossy().to_string();
+        }
+    }
+    path.to_string()
+}
 
 fn cfg() -> structs::Configs {
     use structs::Configs;
@@ -46,19 +58,21 @@ fn run_program(config: structs::Configs) -> Result<String, String> {
 fn run_binary(window: tauri::Window, contents: String) -> Result<(), String> {
     let config = cfg();
 
-    // Save file before build
     fs::write(&config.file_path, contents).map_err(|e| e.to_string())?;
 
-    // Run build command, pipe output to frontend
+    let path = expand_tilde("~/.local/share/remu/builds/a.bin");
+    let build_path = expand_tilde("~/.local/share/remu/builds/");
+
     let build_output = Command::new(&config.bin_path)
         .arg("build")
         .arg(&config.file_path)
+        .arg("-o")
+        .arg(build_path.clone())
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped())
         .spawn()
         .map_err(|e| format!("Build failed to start: {}", e))?;
 
-    // Wait for build to finish and capture output
     let output = build_output
         .wait_with_output()
         .map_err(|e| format!("Failed to wait on build process: {}", e))?;
@@ -81,13 +95,11 @@ fn run_binary(window: tauri::Window, contents: String) -> Result<(), String> {
 
     if !output.status.success() {
         return Ok(());
-        // return Err("Build command failed".into());
     }
 
-    // Run binary, pipe output to frontend
     let mut child = Command::new(&config.bin_path)
         .arg("run")
-        .arg("/Users/rohit/rohit-project-work/remucomp/out/a.bin")
+        .arg(path.clone())
         .stdout(std::process::Stdio::piped())
         .spawn()
         .map_err(|e| format!("Failed to start process: {}", e))?;
@@ -102,39 +114,6 @@ fn run_binary(window: tauri::Window, contents: String) -> Result<(), String> {
 
     Ok(())
 }
-
-// #[tauri::command]
-// fn run_binary(window: tauri::Window) -> Result<(), String> {
-//     let config = cfg();
-//
-//     let build_status = Command::new(&config.bin_path)
-//         .arg("build")
-//         .arg(&config.file_path)
-//         .status()
-//         .map_err(|e| format!("Build failed to start: {}", e))?;
-//
-//     if !build_status.success() {
-//         return Err("Build command failed".into());
-//     }
-//
-//     let mut child = Command::new(&config.bin_path)
-//         .arg("run")
-//         .arg("/Users/rohit/rohit-project-work/remucomp/out/a.bin")
-//         .stdout(std::process::Stdio::piped())
-//         .spawn()
-//         .map_err(|e| format!("Failed to start process: {}", e))?;
-//
-//     let stdout = child.stdout.take().ok_or("Failed to capture stdout")?;
-//     std::thread::spawn(move || {
-//         use std::io::{BufRead, BufReader};
-//         let reader = BufReader::new(stdout);
-//         for line in reader.lines().flatten() {
-//             let _ = window.emit("vm-output", line);
-//         }
-//     });
-//
-//     Ok(())
-// }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {

@@ -11,6 +11,36 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <errno.h>
+
+int mkdir_recursive(const char* dir, mode_t mode) {
+    char tmp[1024];
+    char* p = NULL;
+    size_t len;
+
+    snprintf(tmp, sizeof(tmp), "%s", dir);
+    len = strlen(tmp);
+
+    if (tmp[len - 1] == '/') {
+        tmp[len - 1] = 0;
+    }
+
+    for (p = tmp + 1; *p; p++) {
+        if (*p == '/') {
+            *p = 0;
+            if (mkdir(tmp, mode) != 0 && errno != EEXIST) {
+                return -1;
+            }
+            *p = '/';
+        }
+    }
+    if (mkdir(tmp, mode) != 0 && errno != EEXIST) {
+        return -1;
+    }
+    return 0;
+}
 
 static void init_string_table(StringTable* st) {
     st->strings = NULL;
@@ -332,7 +362,7 @@ static Result second_pass(DynBuffer* opcodes, LabelMap* labels, ParsedLines* pli
   return SUCCESS;
 }
 
-Result assemble(const char* filepath, bool isQuiet, bool isVerbose) {
+Result assemble(const char* filepath, char* outDir, bool isQuiet, bool isVerbose) {
   char* raw_code = read_file_to_string(filepath);
   if (!raw_code) return ERROR;
 
@@ -413,10 +443,26 @@ Result assemble(const char* filepath, bool isQuiet, bool isVerbose) {
     return ERROR;
   }
 
+  struct stat st = {0};
+  if (stat(outDir, &st) == -1) {
+      if (mkdir_recursive(outDir, 0755) != 0) {
+          perror("Failed to create output directory");
+          freeBuffer(&opcodes);
+          free_string_table(&strtable);
+          free_sprite_table(&stsprites);
+          return ERROR;
+      }
+  }
+
+  char outFilePath[1024];
+  snprintf(outFilePath, sizeof(outFilePath), "%s/a.bin", outDir);
+
+  FILE *f = fopen(outFilePath, "wb");
+
   // FILE *f = fopen("out/a.bin", "wb");
-  FILE *f = fopen("/Users/rohit/rohit-project-work/remucomp/out/a.bin", "wb");
+  // FILE *f = fopen("/Users/rohit/rohit-project-work/remucomp/out/a.bin", "wb");
   if (!f) {
-    printf("\nINVALID FILE out/a.bin\n");
+    printf("\nINVALID FILE %s\n", outFilePath);
     freeBuffer(&opcodes);
     free_string_table(&strtable);
     free_sprite_table(&stsprites);

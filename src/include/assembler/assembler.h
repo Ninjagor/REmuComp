@@ -107,6 +107,7 @@ typedef struct {
   size_t capacity;
 } StringTable;
 
-Result assemble(const char* filepath, bool isQuiet, bool isVerbose);
+// Result assemble(const char* filepath, bool isQuiet, bool isVerbose);
+Result assemble(const char* filepath, char* outDir, bool isQuiet, bool isVerbose);
 
 #endif

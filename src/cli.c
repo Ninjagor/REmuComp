@@ -27,38 +27,52 @@ int cli_main(int argc, char* argv[]) {
         return 1;
     }
 
+    
     if (strcmp(argv[1], "build") == 0) {
-        if (argc < 3) {
-            printf("Missing source file for build\n");
-            print_usage();
-            return 1;
-        }
+      if (argc < 5) {  // Need at least: build <file> -o <dir>
+          printf("Missing arguments for build\n");
+          print_usage();
+          return 1;
+      }
 
-        const char* filepath = argv[2];
-        bool quiet = false, verbose = false;
+      const char* filepath = argv[2];
+      const char* outdir = NULL;
+      bool quiet = false, verbose = false;
 
-        for (int i = 3; i < argc; i++) {
-            if (strcmp(argv[i], "-q") == 0) {
-                quiet = true;
-            } else if (strcmp(argv[i], "-v") == 0) {
-                verbose = true;
-            } else {
-                printf("Unknown flag '%s' for build\n", argv[i]);
-                return 1;
-            }
-        }
+      for (int i = 3; i < argc; i++) {
+          if (strcmp(argv[i], "-o") == 0) {
+              if (i + 1 >= argc) {
+                  printf("Missing output directory after -o\n");
+                  return 1;
+              }
+              outdir = argv[i + 1];
+              i++;  // skip output dir argument
+          } else if (strcmp(argv[i], "-q") == 0) {
+              quiet = true;
+          } else if (strcmp(argv[i], "-v") == 0) {
+              verbose = true;
+          } else {
+              printf("Unknown flag '%s' for build\n", argv[i]);
+              return 1;
+          }
+      }
 
-        int res = assemble(filepath, quiet, verbose);
-        if (res != 0) {
-            if (!quiet) printf("Build failed\n");
-            return res;
-        }
-        if (!quiet) printf("Build succeeded:\n");
-        if (!quiet) printf("out/a.bin\n");
-        // If verbose, you can add code here to print the binary output.
-        return 0;
+      if (outdir == NULL) {
+          printf("Output directory is required with -o\n");
+          return 1;
+      }
 
-    } else if (strcmp(argv[1], "run") == 0) {
+      int res = assemble(filepath, outdir, quiet, verbose);
+      if (res != 0) {
+          if (!quiet) printf("Build failed\n");
+          return res;
+      }
+      if (!quiet) {
+          printf("Build succeeded:\n");
+          printf("%s\n", outdir);
+      }
+      return 0;
+  }  else if (strcmp(argv[1], "run") == 0) {
         if (argc < 3) {
             printf("Missing file to run\n");
             print_usage();

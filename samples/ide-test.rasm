@@ -4,6 +4,30 @@ _START
   CALL _SETUP
   JMP _MAIN
 
+_SETUP
+  ; Char Set
+  STRS R0, "REMU", 0xE010
+  STRS R5, " VM ", 0xE020
+
+  ; Set the mem start
+  MOVR R3, R0
+
+  ; X
+  MOVI R1, 0x0000
+  ; Y
+  MOVI R2, 0x0016
+
+  ; 1 var
+  MOVI R8, 0x0001
+
+  ; LETTER SPACING
+  MOVI R11, 0x0008
+
+  INITDISPLAY
+  DRAW
+  RET
+
+
 _MAIN
   CALL _DRAW  
   JMP _MAIN
@@ -12,25 +36,24 @@ _MAIN
 _DRAW
   CLS
 
-  ; ---- DRAW "REMU" ----
-  MOVR R4, R1                    ; Start x
-  MOVI R7, #0x0004               ; Loop count
-  MOVI R6, #0x0000               ; Counter
-  MOVI R3, #0xE010               ; "REMU" string addr
+  MOVR R4, R1
+  MOVI R7, 0x0004
+  MOVI R6, 0x0000
+  MOVI R3, 0xE010
   CALL _LOOP
 
-  ; ---- DRAW "VM" BELOW ----
-  MOVR R4, R1                    ; Reset x
-  MOVI R7, #0x0004               ; Loop count
-  MOVI R6, #0x0000               ; Counter
-  MOVI R3, #0xE020               ; "VM" string addr
-  MOVI R12, #0x0008              ; vertical offset
-  ADD R13, R2, R12               ; R13 = Y + 8
-  MOVR R14, R13                  ; R14 = Y for second line
+
+  MOVR R4, R1
+  MOVI R7, 0x0004
+  MOVI R6, 0x0000 
+  MOVI R3, 0xE020
+  MOVI R12, 0x0008
+  ADD R13, R2, R12 
+  MOVR R14, R13 
   CALL _LOOP_LINE2
 
   DRAW
-  MOVI R9, #0x0050
+  MOVI R9, 0x0050
   CMP R1, R9
   CL _INCREASE_X
   CGE _RESET_X
@@ -41,7 +64,7 @@ _RESET_X
   RET
 
 _INCREASE_X
-  MOVI R10, #0x0003
+  MOVI R10, 0x0003
   ADD R1, R1, R10
   RET
 
@@ -51,7 +74,7 @@ _LOOP
   RET
 
 _LOOP_ACTION
-  ADD R4, R4, R11               ; advance X by spacing
+  ADD R4, R4, R11
   LOADB R0, R3
 
   CMP R4, R9
@@ -90,26 +113,3 @@ _FINISH_LOOP_LINE2
 _STRB_LINE2
   STRB R0, R4, R14
   JMP _FINISH_LOOP_LINE2
-
-_SETUP
-  ; Char Set
-  STRS R0, "REMU", 0xE010
-  STRS R5, " VM ", 0xE020
-
-  ; Set the mem start
-  MOVR R3, R0
-
-  ; X
-  MOVI R1, #0x0000
-  ; Y
-  MOVI R2, #0x0016
-
-  ; 1 var
-  MOVI R8, #0x0001
-
-  ; LETTER SPACING
-  MOVI R11, #0x0008
-
-  INITDISPLAY
-  DRAW
-  RET
