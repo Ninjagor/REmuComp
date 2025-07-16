@@ -18,7 +18,8 @@
 - [🔎 Overview](#-overview)
 - [💻 Screenshots](#-screenshots)
 - [⚙️ Installation](#️-installation)
-- [🧪 Tech Debrief](#-tech-debrief)
+- [🧠 Tutorial/Guide](#-tutorial)
+- [📖 Documentation](#-documentation)
 - [🤝 Contributing](#-contributing)
 
 ---
@@ -139,3 +140,42 @@ And to run the assembled bytecode, run:
 ```bash
 ./bin/main run (PATH_TO_BYTECODE)
 ```
+
+# Tutorial/Guide 
+## RASM
+RASM is the assembly language that powers programs that run on the REmuVM. It supports labels, branching & control flow, math operations, and more. It acts as a direct interface for the REmu virtual machine, and it can do operations like directly manipulating RAM and CPU registers.
+
+### Getting started with RASM
+To get started with RASM, you just have to create file with the extension `.rasm`. REmuVM comes with a package called "REmu - IDE". The REmu IDE is the recommended development environment for RASM projects, as it supports syntax highlighting, code suggestions, and an integrated console output window. However, RASM can be used with any text editor of choice. Once you have completed your RASM code, you can build it and run it (As demonstrated in the **Installation and Usage** section above).
+
+### Structure of a RASM Program
+RASM programs are structured using labels, which are prefixed with `_`. A RASM program requires a `_START` label as the entry point of the program. Here is a bare-minimum RASM program:
+
+```RASM
+_START
+    HALT
+```
+
+This will output:
+```RASM
+============================
+STDOUT
+
+
+REmu VM Exited successfully.
+============================
+```
+### Essential Operations
+Manipulating CPU Registers is one of the most common operations that a RASM program will perform. Since there is no such thing as a "variable" in RASM, CPU registers are used instead to store/retrieve temporary values, very similar to variables. There are 2 main ways to DIRECTLY modify a CPU register. *NOTE: There are numerous other operations that modify CPU registers, but these 2 methods are the most common and direct ones.*
+
+**MOV Immediate (MOVI)**
+```RASM
+MOVI Rx, 0xXXXX
+```
+This sets the specified register `Rx` to the immedate hex value provided in the second argument.
+
+**MOV Register (MOVR)**
+```RASM
+MOVR Rx, Ry
+```
+This copies the value from the specified register `Ry` to the register `Rx`.
