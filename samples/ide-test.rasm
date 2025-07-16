@@ -1,4 +1,6 @@
 _START
+  STRS R20, "Hello World Program in REmuVM!", 0xE200
+  PRINT R20, 1
   CALL _SETUP
   JMP _MAIN
 
@@ -28,7 +30,6 @@ _DRAW
   CALL _LOOP_LINE2
 
   DRAW
-
   MOVI R9, #0x0050
   CMP R1, R9
   CL _INCREASE_X
