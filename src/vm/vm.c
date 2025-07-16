@@ -307,6 +307,8 @@ Result run_program(VM* vm) {
     while (true) {
         timer_tick_counter++;
 
+        poll_window_close(vm);
+
         InterruptFlag interrupt = vm->cpu.flags.program_interrupt;
         if (interrupt != RUNNING) {
             if (interrupt == EFINISH) {

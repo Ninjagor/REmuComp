@@ -1,4 +1,5 @@
 #include <raylib.h>
+#include "cpu/cpu.h"
 #include "graphics/spritesheet.h"
 #include "vm/vm.h"
 #include "fonts/chicago_font.h"
@@ -31,6 +32,14 @@ const char* KEYMAP[16] = {
 };
 
 static Font retroFont;
+
+void poll_window_close(VM* vm) {
+    if (vm->cpu.flags.graphics_initialized == INITIALIZED) {
+      if (WindowShouldClose()) {
+        vm->cpu.flags.program_interrupt = SFINISH; 
+      }
+    }
+}
 
 void poll_keys(VM* vm) {
     for (int i = 0; i < 16; i++) vm->cpu.flags.keys[i] = false;

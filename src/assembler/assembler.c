@@ -93,7 +93,7 @@ static Result first_pass(LabelMap* labels, ParsedLines* plines) {
     }
 
     if ((int)get_opcode_from_str(toks[0]) == -1) {
-      printf("\nCOMPILATION ERROR: Invalid Operation %s", toks[0]);
+      printf("\nCOMPILATION ERROR: Invalid Operation %s\n", toks[0]);
       return ERROR;
     }
 
@@ -259,7 +259,7 @@ static Result second_pass(DynBuffer* opcodes, LabelMap* labels, ParsedLines* pli
     }
 
     if (opcode == -1) {
-      printf("\nCOMPILATION ERROR: Invalid Operation %s", toks[0]);
+      printf("\nCOMPILATION ERROR: Invalid Operation %s\n", toks[0]);
       return ERROR;
     }
 
@@ -413,7 +413,8 @@ Result assemble(const char* filepath, bool isQuiet, bool isVerbose) {
     return ERROR;
   }
 
-  FILE *f = fopen("out/a.bin", "wb");
+  // FILE *f = fopen("out/a.bin", "wb");
+  FILE *f = fopen("/Users/rohit/rohit-project-work/remucomp/out/a.bin", "wb");
   if (!f) {
     printf("\nINVALID FILE out/a.bin\n");
     freeBuffer(&opcodes);
