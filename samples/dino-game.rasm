@@ -90,6 +90,7 @@ _RENDER
 
 _COLLISION
     MOVI R31, 0x0001
+    STSI 0x0030
     RET
 
 _GAMEOVER
@@ -156,7 +157,7 @@ _DRAW
     CEQ _GAMEOVER
     CNE _RENDER
 
-    DRAW ; draw
+    DRAW
     JMP _DRAW
     HALT
 

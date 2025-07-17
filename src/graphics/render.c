@@ -1,8 +1,10 @@
 #include <raylib.h>
+#include <stdio.h>
 #include "cpu/cpu.h"
 #include "graphics/spritesheet.h"
 #include "vm/vm.h"
 #include "fonts/chicago_font.h"
+#include "sounds/beep.h"
 
 #define SCALE 8
 #define SCREEN_WIDTH 96
@@ -23,6 +25,41 @@ const Color BEZEL = (Color){0, 0, 0, 255};
 const Color SCREEN_BG = (Color){26, 37, 31, 255};
 const Color KEYPAD_BG = (Color){26, 20, 10, 100};
 const Color BUTTON_BG = (Color){163, 158, 130, 255};
+
+
+static Sound beep;
+
+void init_audio(void) {
+    SetTraceLogLevel(LOG_NONE); 
+    InitAudioDevice();
+
+    FILE *f = fopen("beep_temp.mp3", "wb");
+    if (!f) {
+        return;
+    }
+    fwrite(sounds_beep_mp3, 1, sounds_beep_mp3_len, f);
+    fclose(f);
+
+    beep = LoadSound("beep_temp.mp3");
+}
+
+void start_beep(void) {
+    if (!IsSoundPlaying(beep)) {
+        PlaySound(beep);
+    }
+}
+
+void stop_beep(void) {
+    if (IsSoundPlaying(beep)) {
+        StopSound(beep);
+    }
+}
+
+void cleanup_audio(void) {
+    UnloadSound(beep);
+    CloseAudioDevice();
+    remove("beep_temp.mp3");
+}
 
 const char* KEYMAP[16] = {
     "1","2","3","C",

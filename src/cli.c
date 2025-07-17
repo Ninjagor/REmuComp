@@ -98,6 +98,8 @@ int cli_main(int argc, char* argv[]) {
         return 1;
       }
 
+      init_audio();
+
 
       load_program(&vm, filepath);
 
@@ -132,6 +134,8 @@ int cli_main(int argc, char* argv[]) {
 
     
       cleanup_vm(&vm);
+
+      cleanup_audio();
 
       raise(SIGINT);
 

@@ -353,15 +353,16 @@ Result run_program(VM* vm) {
           vm->cpu.flags.draw_flag = 0;
         }
 
-
         if (timer_tick_counter >= ticks_per_timer_decrement) {
             timer_tick_counter = 0;
 
             if (vm->cpu.flags.delay_timer > 0) vm->cpu.flags.delay_timer--;
             if (vm->cpu.flags.sound_timer > 0) {
                 vm->cpu.flags.sound_timer--;
+                start_beep();
+                // play_beep();
                 if (vm->cpu.flags.sound_timer == 0) {
-                    // stop_beep();
+                    stop_beep();
                 }
             }
         }
