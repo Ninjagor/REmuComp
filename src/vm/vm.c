@@ -29,7 +29,7 @@ Result initialize_vm(VM *vm) {
 
   load_spritesheet_to_memory(vm->ram.memory);
 
-  // vm->stack.start = STACK_START;        // offset, not absolute address
+  // vm->stack.start = STACK_START;
   // vm->stack.sp = vm->stack.start + STACK_SIZE;
   // vm->stack.size = STACK_SIZE;
   //

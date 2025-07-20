@@ -106,20 +106,13 @@ void init_display(void) {
     SetTraceLogLevel(LOG_NONE);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "REmu - VM");
 
-    // Load embedded Chicago font from memory at 32px base size
     retroFont = LoadFontFromMemory(".ttf", ChicagoFLF_ttf, ChicagoFLF_ttf_len, 32, 0, 0);
 }
 
+
 static void draw_sprite_glow(int x, int y) {
-    DrawRectangle(x, y, SCALE, SCALE, WHITE);
-    for (int dx = -1; dx <= 1; dx++) {
-        for (int dy = -1; dy <= 1; dy++) {
-            if (dx || dy) {
-                DrawRectangle(x + dx, y + dy, SCALE, SCALE,
-                              (Color){255, 255, 255, BLOOM_ALPHA});
-            }
-        }
-    }
+    Color terminalGreen = (Color){ 9, 202, 69, 255 };
+    DrawRectangle(x, y, SCALE, SCALE, terminalGreen);
 }
 
 void render(VM* vm) {
@@ -127,7 +120,6 @@ void render(VM* vm) {
 
     ClearBackground(APP_BG);
 
-    // Title centered with shadow using retroFont
     const char* title = "REmu VM";
     int fontSize = 32;
     int titleWidth = MeasureTextEx(retroFont, title, fontSize, 1).x;
